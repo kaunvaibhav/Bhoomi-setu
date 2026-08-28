@@ -92,8 +92,8 @@ Edit `/lib/mockData.ts`:
 
 ```typescript
 export const SIH_META = {
-  problemStatementId: "PS-26016",   // Update
-  teamName: "HardForkers",  // Update
+  problemStatementId: "PS-26016",  
+  teamName: "HardForkers",
 };
 ```
 
