@@ -10,6 +10,9 @@ import CaseTimeline from "@/components/CaseTimeline";
 import DocumentList from "@/components/DocumentList";
 import Modal from "@/components/Modal";
 import ToastNotification, { useToast } from "@/components/ToastNotification";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
+import { LogOut } from "lucide-react";
 import { SAMPLE_PROJECTS } from "@/lib/mockData";
 import { generateStageProgress } from "@/lib/workflowStages";
 import { formatArea, formatCurrency, calculateProgress } from "@/lib/utils";
@@ -20,6 +23,7 @@ interface PageProps {
 
 export default function ProjectDetailPage({ params }: PageProps) {
   const { id } = use(params);
+  const { user, logout } = useAuth();
   const project = SAMPLE_PROJECTS.find((p) => p.id === id);
   const [activeTab, setActiveTab] = useState<"lifecycle" | "documents" | "parcels">("lifecycle");
   const [mapModalOpen, setMapModalOpen] = useState(false);
@@ -43,19 +47,30 @@ export default function ProjectDetailPage({ params }: PageProps) {
   const compensationPct = calculateProgress(project.compensationDisbursed, project.compensationAssessed);
 
   return (
-    <>
+    <ProtectedRoute>
       <TopUtilityBar />
       <div className="min-h-screen bg-[#F8FAFC]">
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-          <div className="max-w-8xl mx-auto px-4 h-14 flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-1.5 text-gray-500 hover:text-[#1F3864] text-sm font-medium transition-colors">
-              <ArrowLeft size={16} /> Dashboard
-            </Link>
-            <span className="text-gray-300">/</span>
-            <span className="text-sm text-gray-700 font-medium truncate">{project.name}</span>
-            <div className="ml-auto">
+          <div className="max-w-8xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <Link href="/dashboard" className="flex items-center gap-1.5 text-gray-500 hover:text-[#1F3864] text-sm font-medium transition-colors flex-shrink-0">
+                <ArrowLeft size={16} /> Dashboard
+              </Link>
+              <span className="text-gray-300">/</span>
+              <span className="text-sm text-gray-700 font-medium truncate">{project.name}</span>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
               <StatusBadge status={project.status} />
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer"
+                title="Sign out of BhoomiSetu"
+              >
+                <LogOut size={13} />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
             </div>
           </div>
         </div>
@@ -334,6 +349,6 @@ export default function ProjectDetailPage({ params }: PageProps) {
       </Modal>
 
       <ToastNotification toasts={toasts} onDismiss={dismissToast} />
-    </>
+    </ProtectedRoute>
   );
 }

@@ -10,8 +10,9 @@
 
 BhoomiSetu is a Government of India digital platform proposal that connects Central Ministries, State Governments, District Authorities, Project Implementing Agencies (PIA), Field Officers, and Citizens on one unified system for managing the complete land acquisition lifecycle under the **Right to Fair Compensation and Transparency in Land Acquisition, Rehabilitation and Resettlement Act, 2013 (RFCTLARR Act)**.
 
+**Country:** Government of India
 **Ministry:** Ministry of Rural Development
-**Department:** Department of Land Resources
+**Department:** Department of Land Resources (DoLR)
 **Problem Statement:** Real-Time National Land Acquisition & Management System for End-to-End Digital Monitoring and Decision Support
 
 ---
@@ -20,26 +21,26 @@ BhoomiSetu is a Government of India digital platform proposal that connects Cent
 
 - **National Dashboard** — Real-time KPIs across all states — area notified, acquired, compensation disbursed, and possession progress
 - **12-Stage Lifecycle Workflow** — Standardized case routing from Project Proposal through Project Handover with audit trail
-- **GIS Visualization** — Schematic map of national project footprint with state-level status markers
+- **GIS Visualization** — Interactive real India map using React Leaflet and OpenStreetMap with state-level status markers
 - **AI Valuation Anomaly Review** — Screens compensation declared values against comparable transactions and circle rates; flags anomalies for officer review
 - **Citizen Case Tracking** — Citizens can look up their case status, compensation details, documents, and next actions by Case ID
-- **Role-Based Dashboards** — Ministry, State, District Collector, PIA, Field Officer, and Citizen views
+- **Role-Based Dashboards** — Ministry, District Collector, PIA, and Citizen views protected by functional authentication
 - **Proposal Submission** — 4-step PIA proposal form with document upload
 - **Documents and Audit Trail** — Version-controlled document repository with uploader role tracking
 - **Alerts and Notifications** — Dashboard alerts for pending actions, milestone risks, and valuation flags
-- **Demo Role Switcher** — Switch between all 6 roles to demonstrate the platform from each perspective
 
 ---
 
 ## Tech Stack
 
-- **Next.js 14** (App Router) — Framework
+- **Next.js 16** (App Router) — Framework
+- **React 19** — User interface
 - **TypeScript** — Type safety
 - **Tailwind CSS** — Styling with custom government color tokens
-- **Recharts** — Dashboard charts (bar, line)
-- **Framer Motion** — Subtle animations
-- **lucide-react** — Icons
-- **Mock API Layer** — Simulated async fetch functions in `/lib/mockApi.ts`
+- **Leaflet & React Leaflet** — Interactive GIS mapping
+- **Recharts** — Dashboard analytics
+- **Framer Motion** — Micro-animations
+- **lucide-react** — Modern iconography
 
 ---
 
@@ -58,31 +59,31 @@ Open http://localhost:3000
 ## Demo Flows
 
 ### Flow A: Ministry Monitoring
-`/` → `/dashboard` → `/projects/PROJ-UP-001` → Lifecycle + AI callout
+`/` → `/login` → Sign in as Ministry Analyst → `/dashboard` → National Overview
 
 ### Flow B: AI Valuation Review
-`/dashboard` → `/valuation-review` → Select UP-AGR-004821 → View anomaly → Mark as Reviewed
+`/dashboard` → `/valuation-review` → Select flagged parcel → Review anomaly metrics
 
 ### Flow C: Citizen Transparency
 `/` → `/track-case` → Enter `BS-UP-2026-004821` → Full case detail
 
 ### Flow D: PIA Proposal
-`/login` → Continue as PIA Officer → `/projects/new` → 4-step form → Submit
+`/login` → Sign in as PIA Officer → `/projects/new` → 4-step form → Submit
 
 ---
 
-## Demo Access
+## Authentication & Prototype Credentials
 
-All demo access requires no real authentication.
+All dashboards are protected by role-based session authentication and Next.js route protection. Enter the official credentials on `/login`:
 
-| Role | Access |
-|------|--------|
-| Ministry Analyst | Login page demo button |
-| District Collector | Login page demo button |
-| PIA Officer | Login page demo button |
-| Citizen | Track My Case page |
+| Role | Official Email | Password |
+|------|----------------|----------|
+| Ministry Analyst | `ministry@bhoomisetu.gov.in` | `Ministry@123` |
+| District Collector | `collector@bhoomisetu.gov.in` | `Collector@123` |
+| PIA Officer | `pia@bhoomisetu.gov.in` | `PIA@123` |
+| Citizen / Land Owner | `citizen@bhoomisetu.gov.in` | `Citizen@123` |
 
-**Sample Case ID:** `BS-UP-2026-004821`
+**Sample Case ID for Public Lookup:** `BS-UP-2026-004821`
 
 ---
 
@@ -97,6 +98,6 @@ export const SIH_META = {
 };
 ```
 
+---
 
-
-*Prototype for Smart India Hackathon 2026 · Ministry of Rural Development · Department of Land Resources · Government of India*
+*Prototype for Smart India Hackathon 2026 · Ministry of Rural Development · Department of Land Resources (DoLR) · Government of India*

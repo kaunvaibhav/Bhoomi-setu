@@ -12,7 +12,7 @@ const FAQS = [
   { q: "Who can access BhoomiSetu?", a: "The platform is designed for Ministry officials, State Government officers, District Collectors, Project Implementing Agencies, Field Officers, and Citizens/Land Owners — each with a role-appropriate dashboard." },
   { q: "How do I track my land acquisition case?", a: "Citizens can use the 'Track My Land Case' feature on the homepage or at /track-case. Enter your Case ID to view the current stage, compensation status, and available documents." },
   { q: "What is the AI Valuation Review?", a: "The AI module screens declared compensation values against comparable registered transactions and circle rates to flag unusual valuations for officer review. It is a decision-support tool and does not alter legal compensation entitlements." },
-  { q: "Is this a real government system?", a: "No. This is a prototype built for Smart India Hackathon 2026. All data is illustrative and no real government APIs are connected. Production deployment would require authorised integrations and security audits." },
+  { q: "Is this a real government system?", a: "No. This is a prototype built for Smart India Hackathon 2026 under the Ministry of Rural Development, Department of Land Resources (DoLR), Government of India. All data is illustrative and no real government APIs are connected. Production deployment would require authorised integrations and security audits." },
   { q: "How do I submit a project proposal as a PIA?", a: "Login as a PIA Officer and navigate to 'Submit New Project Proposal'. Complete the 4-step form with project details, land requirements, and upload the required documents." },
   { q: "What is the 12-stage lifecycle?", a: "BhoomiSetu tracks every case through 12 standardized stages: Project Proposal, Preliminary Scrutiny, SIA, Section 11 Notification, Objection Hearing, Declaration, Survey, Award Declaration (AI check here), Compensation, Possession, R&R, and Project Handover." },
 ];
@@ -105,7 +105,7 @@ export default function HelpPage() {
                   <li>• Government integrations are simulated (SVAMITVA, DILRMP, PFMS, DigiLocker)</li>
                   <li>• GIS data is schematic — not legally accurate cadastral boundaries</li>
                   <li>• AI valuation output is a mock decision-support result</li>
-                  <li>• No real authentication or data storage is implemented</li>
+                  <li>• Functional prototype authentication is enabled (role-based session tokens)</li>
                 </ul>
                 <p className="text-xs text-amber-700 mt-2 font-medium">
                   Production deployment would require authorised APIs, security audits, legal validation, and verified datasets.

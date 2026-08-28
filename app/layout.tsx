@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "BhoomiSetu — Real-Time National Land Acquisition & Management System",
   description:
-    "BhoomiSetu is a Government of India digital platform for end-to-end land acquisition monitoring, GIS visualization, compensation management, and citizen transparency. Smart India Hackathon 2026 Prototype.",
+    "BhoomiSetu is a Government of India digital platform under the Ministry of Rural Development, Department of Land Resources (DoLR) for end-to-end land acquisition monitoring, GIS visualization, compensation management, and citizen transparency. Smart India Hackathon 2026 Prototype.",
   keywords: [
     "land acquisition",
     "BhoomiSetu",
     "Government of India",
-    "DoLR",
     "Ministry of Rural Development",
+    "Department of Land Resources",
+    "DoLR",
     "SIH 2026",
     "RFCTLARR",
   ],
@@ -34,8 +36,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
 }
+

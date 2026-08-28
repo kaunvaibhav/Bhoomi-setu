@@ -13,7 +13,7 @@ export default function Footer() {
             <div className="text-xs text-gray-400 leading-relaxed">
               Government of India<br />
               Ministry of Rural Development<br />
-              Department of Land Resources
+              Department of Land Resources (DoLR)
             </div>
             <div className="mt-4 inline-flex items-center gap-1.5 bg-[#1F3864] px-2.5 py-1 rounded text-xs text-gray-300">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" aria-hidden="true"></span>
@@ -86,10 +86,10 @@ export default function Footer() {
       <div className="border-t border-[#1F3864] bg-[#071628]">
         <div className="max-w-8xl mx-auto px-4 py-4">
           <p className="text-[11px] text-gray-500 leading-relaxed text-center">
-            <strong className="text-gray-400">Prototype Disclaimer:</strong> Prototype for Smart India Hackathon 2026. All dashboard values and project records shown are illustrative sample data and must be replaced with verified Department of Land Resources data before production deployment. No real official names, photographs, or live government APIs are used.
+            <strong className="text-gray-400">Prototype Disclaimer:</strong> Prototype for Smart India Hackathon 2026. All dashboard values and project records shown are illustrative sample data and must be replaced with verified Ministry of Rural Development · Department of Land Resources (DoLR) data before production deployment. No real official names, photographs, or live government APIs are used.
           </p>
-          <p className="text-[10px] text-gray-600 text-center mt-2">
-            © 2026 BhoomiSetu — SIH 2026 Prototype &nbsp;·&nbsp; Ministry of Rural Development, Government of India &nbsp;·&nbsp; Last synced: 29 Aug 2026, 11:45 PM (Prototype timestamp)
+          <p className="text-[10px] text-gray-400 text-center mt-2">
+            © 2026 BhoomiSetu — SIH 2026 Prototype &nbsp;·&nbsp; Ministry of Rural Development | Department of Land Resources (DoLR), Government of India &nbsp;·&nbsp; Last synced: 29 Aug 2026, 11:45 PM (Prototype timestamp)
           </p>
         </div>
       </div>

@@ -13,7 +13,9 @@ export default function AboutPage() {
         {/* Hero */}
         <div className="bg-[#1F3864] text-white py-14 px-4">
           <div className="max-w-4xl mx-auto">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">About BhoomiSetu</span>
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
+              Government of India · Ministry of Rural Development · Department of Land Resources (DoLR)
+            </span>
             <h1 className="text-4xl font-bold mt-2 mb-3">Bridging Land, Data &amp; Decisions</h1>
             <p className="text-blue-200 text-base leading-relaxed max-w-2xl">
               A Smart India Hackathon 2026 prototype proposing a unified national platform for the complete land acquisition lifecycle under the RFCTLARR Act, 2013.
@@ -38,7 +40,7 @@ export default function AboutPage() {
                   label: "Solution",
                   color: "#EAF0F8",
                   border: "#1F3864",
-                  content: "BhoomiSetu proposes a unified digital platform connecting Ministry, State, District, PIA, Field Officers, and Citizens on one workflow system—with GIS mapping, AI-assisted valuation review, and real-time progress monitoring.",
+                  content: "BhoomiSetu proposes a unified digital platform connecting Ministry of Rural Development (DoLR), State Governments, District Authorities, PIAs, Field Officers, and Citizens on one workflow system—with GIS mapping, AI-assisted valuation review, and real-time progress monitoring.",
                 },
                 {
                   label: "Impact",
@@ -80,7 +82,7 @@ export default function AboutPage() {
             <ul className="space-y-2">
               {[
                 "A single, nationally accessible workflow system for all 12 acquisition stages.",
-                "Role-based dashboards for Ministry, State, District, PIA, Field Officer, and Citizen.",
+                "Role-based dashboards for Ministry of Rural Development / DoLR, State Governments, District Collectors, PIAs, Field Officers, and Citizens.",
                 "AI-assisted compensation valuation screening before award finalisation.",
                 "GIS-enabled parcel tracking integrated with DILRMP and Bhuvan.",
                 "Citizen transparency portal for case status and document access.",
@@ -124,7 +126,7 @@ export default function AboutPage() {
             <h2 id="impl-heading" className="text-2xl font-bold text-[#1F3864] mb-4">Phase-wise Implementation Plan</h2>
             <div className="space-y-3">
               {[
-                { phase: "Phase 1 (0–6 months)", title: "Core Platform", desc: "Workflow engine, RBAC, document repository, basic dashboards, Ministry and District Collector interfaces." },
+                { phase: "Phase 1 (0–6 months)", title: "Core Platform", desc: "Workflow engine, RBAC, document repository, basic dashboards, Ministry of Rural Development / DoLR and District Collector interfaces." },
                 { phase: "Phase 2 (6–12 months)", title: "GIS Integration", desc: "DILRMP and Bhuvan integration, parcel-level tracking, GIS-enabled map views, field officer mobile interface." },
                 { phase: "Phase 3 (12–18 months)", title: "AI Module & Compensation", desc: "IGRS data integration, AI valuation screening deployment, PFMS compensation tracking, citizen portal launch." },
                 { phase: "Phase 4 (18–24 months)", title: "Scale & Interoperability", desc: "National rollout, Aadhaar-linked citizen login, DigiLocker integration, MIS reports, audit dashboard." },

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, MapPin, LayoutDashboard, Search } from "lucide-react";
+import { Menu, X, MapPin, LayoutDashboard, Search, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const NAV_LINKS = [
   { href: "/#features", label: "Features" },
@@ -44,6 +45,7 @@ function BhoomiSetuLogo() {
 export default function MainNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm" role="banner">
@@ -79,13 +81,33 @@ export default function MainNavbar() {
             <Search size={14} />
             Track My Case
           </Link>
-          <Link
-            href="/login"
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-[#1F3864] text-white text-sm font-medium hover:bg-[#2A4A8A] transition-colors"
-          >
-            <LayoutDashboard size={14} />
-            Login
-          </Link>
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-[#1F3864] text-white text-sm font-medium hover:bg-[#2A4A8A] transition-colors"
+              >
+                <LayoutDashboard size={14} />
+                Dashboard ({user.roleTitle})
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-[#1F3864] text-white text-sm font-medium hover:bg-[#2A4A8A] transition-colors"
+            >
+              <LayoutDashboard size={14} />
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Mobile menu button */}

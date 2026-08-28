@@ -33,11 +33,13 @@ export default function TopUtilityBar() {
             </div>
           </div>
 
-          {/* Center: Ministry name */}
+          {/* Center: Ministry & Department name */}
           <div className="hidden md:block text-center leading-tight">
-            <div className="text-[10px] font-medium text-gray-500 tracking-wide uppercase">Ministry of Rural Development</div>
+            <div className="text-[10px] font-medium text-gray-500 tracking-wide uppercase">
+              Ministry of Rural Development &nbsp;|&nbsp; Department of Land Resources (DoLR)
+            </div>
             <div className="text-[11px] font-semibold text-[#1F3864]" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>
-              ग्रामीण विकास मंत्रालय
+              ग्रामीण विकास मंत्रालय &nbsp;|&nbsp; भूमि संसाधन विभाग
             </div>
           </div>
 

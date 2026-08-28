@@ -1,9 +1,12 @@
 // Illustrative prototype data only.
-// Replace with verified DoLR data and authorised API integrations in production.
+// Replace with verified Ministry of Rural Development / DoLR data and authorised API integrations in production.
 
 export const SIH_META = {
   problemStatementId: "PS-XXXX",
   problemStatement: "Real-Time National Land Acquisition & Management System",
+  country: "Government of India",
+  organization: "Ministry of Rural Development",
+  department: "Department of Land Resources (DoLR)",
   theme: "Smart Governance",
   category: "Software",
   teamId: "SIH-XXXX",
@@ -519,7 +522,7 @@ export const DASHBOARD_ALERTS = [
 export type UserRole = "ministry" | "state" | "district" | "pia" | "field" | "citizen";
 
 export const DEMO_ROLES: Record<UserRole, { label: string; description: string; color: string }> = {
-  ministry: { label: "Ministry Analyst", description: "Department of Land Resources", color: "#1F3864" },
+  ministry: { label: "Ministry Analyst", description: "Ministry of Rural Development | Department of Land Resources (DoLR)", color: "#1F3864" },
   state: { label: "State Government Officer", description: "Uttar Pradesh Land Records Dept.", color: "#7C3AED" },
   district: { label: "District Collector", description: "Varanasi, Uttar Pradesh", color: "#0369A1" },
   pia: { label: "PIA Officer", description: "National Highways Authority of India", color: "#065F46" },

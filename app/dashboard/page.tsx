@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   RefreshCw, Download, Filter, Bell, Search, ChevronDown,
-  AlertTriangle, TrendingUp, BarChart3, MapPin, Brain, User,
+  AlertTriangle, TrendingUp, BarChart3, MapPin, Brain, User, LogOut,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -16,13 +16,16 @@ import KpiCard from "@/components/KpiCard";
 import ProjectTable from "@/components/ProjectTable";
 import MapPanel from "@/components/MapPanel";
 import ToastNotification, { useToast } from "@/components/ToastNotification";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
 import { type UserRole, NATIONAL_KPIS, STATE_AREA_DATA, COMPENSATION_DATA, STAGE_DISTRIBUTION, MONTHLY_PROGRESS, SAMPLE_PROJECTS, DASHBOARD_ALERTS, DEMO_ROLES } from "@/lib/mockData";
 import { formatArea, formatCurrency } from "@/lib/utils";
 
 const STAGE_COLORS = ["#1F3864", "#2A4A8A", "#138808", "#0369A1", "#7C3AED", "#B45309", "#065F46", "#DC2626"];
 
 export default function DashboardPage() {
-  const [role, setRole] = useState<UserRole>("ministry");
+  const { user, logout } = useAuth();
+  const role: UserRole = (user?.role as UserRole) || "ministry";
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "map" | "charts">("overview");
   const [selectedState, setSelectedState] = useState<string | undefined>(undefined);
@@ -112,7 +115,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <>
+    <ProtectedRoute>
       <TopUtilityBar />
       <div className="min-h-screen bg-[#F8FAFC]">
         {/* Dashboard top bar */}
@@ -134,13 +137,27 @@ export default function DashboardPage() {
                 <Bell size={17} />
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FF9933]" aria-hidden="true" />
               </button>
-              {/* Role badge */}
-              <div className="hidden sm:flex items-center gap-2 bg-[#EAF0F8] px-3 py-1.5 rounded-xl">
-                <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: roleConfig.color }}>
-                  {roleConfig.label[0]}
+              {/* Role & User badge */}
+              <div className="hidden sm:flex items-center gap-2 bg-[#EAF0F8] px-3 py-1.5 rounded-xl border border-blue-200/60">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: roleConfig.color }}>
+                  {user?.avatarInitials || roleConfig.label[0]}
                 </div>
-                <span className="text-[11px] font-semibold text-[#1F3864]">{roleConfig.label}</span>
+                <div className="text-left">
+                  <span className="text-xs font-bold text-[#1F3864] block leading-tight">{user?.name || roleConfig.label}</span>
+                  <span className="text-[9px] text-gray-500 block leading-tight">{user?.roleTitle || roleConfig.label}</span>
+                </div>
               </div>
+
+              {/* Visible Logout Button */}
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer"
+                title="Sign out of BhoomiSetu"
+              >
+                <LogOut size={13} />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
             </div>
           </div>
         </div>
@@ -149,19 +166,24 @@ export default function DashboardPage() {
         <div className="flex">
           {/* Sidebar */}
           <div className="hidden lg:block">
-            <DashboardSidebar currentRole={role} onRoleChange={setRole} />
+            <DashboardSidebar currentRole={role} />
           </div>
 
           {/* Main content */}
           <main id="main-content" className="flex-1 min-w-0 p-5 space-y-5">
             {/* Page header */}
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-xl font-bold text-[#1F3864]">{dashTitle[role]}</h1>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-xl font-bold text-[#1F3864]">{dashTitle[role]}</h1>
+                  {role === "ministry" && (
+                    <span className="text-[10px] font-semibold text-[#1F3864] bg-[#EAF0F8] px-2.5 py-0.5 rounded-full border border-blue-200">
+                      Ministry of Rural Development | Department of Land Resources (DoLR)
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Real-time monitoring of land acquisition projects · <span className="italic">Prototype data</span>
+                  Ministry of Rural Development → Department of Land Resources (DoLR) · Real-time monitoring · <span className="italic">Prototype data</span>
                 </p>
-              </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-[10px] text-gray-400 hidden sm:block">Last synced: {new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
                 <button
@@ -182,6 +204,73 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
+
+            {/* Role-Specific Contextual Card */}
+            {role === "citizen" && (
+              <div className="bg-white rounded-2xl border-2 border-green-200 p-5 shadow-card bg-gradient-to-r from-green-50/50 via-white to-blue-50/30">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-sm">
+                      RP
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-bold text-[#1F3864]">
+                        Welcome, Ramesh Chandra Patel (Registered Citizen & Landholder)
+                      </h2>
+                      <p className="text-xs text-gray-500">
+                        Active Case ID: <span className="font-mono font-bold text-[#1F3864]">BS-UP-2026-004821</span> · Delhi–Varanasi Freight Corridor
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/track-case/BS-UP-2026-004821"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#138808] text-white text-xs font-semibold rounded-xl hover:bg-green-700 transition-colors shadow-xs"
+                  >
+                    View My Full Case Record →
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-green-100 text-xs">
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Parcel ID</span>
+                    <span className="font-semibold text-gray-800">UP-VAR-2026-089</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Land Area Notified</span>
+                    <span className="font-semibold text-gray-800">0.85 Hectares</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Compensation Disbursed</span>
+                    <span className="font-bold text-[#138808]">₹42,50,000 (100% PFMS)</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px]">Status</span>
+                    <span className="inline-flex items-center gap-1 font-semibold text-blue-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                      Possession Recorded
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {role === "pia" && (
+              <div className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-card flex flex-wrap items-center justify-between gap-3 bg-emerald-50/40">
+                <div>
+                  <h2 className="text-sm font-bold text-emerald-950">
+                    PIA Workspace: National Highways Authority of India (NHAI)
+                  </h2>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    Authorized Officer: Vikramaditya Singh · 4 active corridors undergoing land acquisition
+                  </p>
+                </div>
+                <Link
+                  href="/projects/new"
+                  className="px-3.5 py-1.5 bg-[#065F46] text-white text-xs font-semibold rounded-xl hover:bg-emerald-800 transition-colors shadow-xs"
+                >
+                  + Submit New Project Proposal
+                </Link>
+              </div>
+            )}
 
             {/* Prototype data badge */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
@@ -333,6 +422,6 @@ export default function DashboardPage() {
         </div>
       </div>
       <ToastNotification toasts={toasts} onDismiss={dismissToast} />
-    </>
+    </ProtectedRoute>
   );
 }

@@ -326,7 +326,7 @@ export default function NationalFootprintMap() {
       {/* Footer Info */}
       <div className="flex items-center justify-between pt-2 px-1 text-[10px] text-gray-400">
         <span>Hover or click markers for state metrics · Pan and zoom enabled</span>
-        <span className="font-medium text-[#1F3864]">BhoomiSetu RFCTLARR GIS</span>
+        <span className="font-medium text-[#1F3864]">MoRD · DoLR | RFCTLARR GIS</span>
       </div>
     </div>
   );

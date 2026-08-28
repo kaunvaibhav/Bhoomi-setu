@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, FolderOpen, MapPin, DollarSign, Users,
   Brain, FileText, BarChart3, Bell, ClipboardList, HelpCircle,
-  ChevronRight, Shield,
+  ChevronRight, Shield, LogOut,
 } from "lucide-react";
 import { type UserRole, DEMO_ROLES } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 
 interface SidebarItem {
   href: string;
@@ -32,12 +33,13 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
 
 interface DashboardSidebarProps {
   currentRole: UserRole;
-  onRoleChange: (role: UserRole) => void;
+  onRoleChange?: (role: UserRole) => void;
 }
 
-export default function DashboardSidebar({ currentRole, onRoleChange }: DashboardSidebarProps) {
+export default function DashboardSidebar({ currentRole }: DashboardSidebarProps) {
   const pathname = usePathname();
-  const roleConfig = DEMO_ROLES[currentRole];
+  const { user, logout } = useAuth();
+  const roleConfig = DEMO_ROLES[currentRole] || DEMO_ROLES.ministry;
 
   return (
     <aside
@@ -76,31 +78,41 @@ export default function DashboardSidebar({ currentRole, onRoleChange }: Dashboar
         })}
       </nav>
 
-      {/* Role switcher */}
-      <div className="p-3 border-t border-gray-100">
-        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-2">Demo Role</p>
-        <select
-          value={currentRole}
-          onChange={(e) => onRoleChange(e.target.value as UserRole)}
-          className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1F3864] focus:border-[#1F3864]"
-          aria-label="Switch demo role"
-        >
-          <option value="ministry">Ministry Analyst</option>
-          <option value="state">State Govt Officer</option>
-          <option value="district">District Collector</option>
-          <option value="pia">PIA Officer</option>
-          <option value="field">Field Officer</option>
-          <option value="citizen">Citizen</option>
-        </select>
-        <div className="mt-2 px-2 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
-          <p className="text-[11px] font-semibold text-gray-700 truncate">{roleConfig.label}</p>
-          <p className="text-[10px] text-gray-500 truncate">{roleConfig.description}</p>
-          <div className="flex items-center gap-1 mt-1">
-            <Shield size={9} className="text-gray-400" />
-            <span className="text-[9px] text-gray-400">Prototype demo access</span>
+      {/* Authenticated User Session & Logout */}
+      <div className="p-3 border-t border-gray-100 bg-slate-50/50">
+        <div className="p-2.5 rounded-xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+              style={{ backgroundColor: roleConfig.color }}
+            >
+              {user?.avatarInitials || roleConfig.label[0]}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-[#1F3864] truncate">
+                {user?.name || roleConfig.label}
+              </p>
+              <p className="text-[10px] text-gray-500 truncate">
+                {user?.roleTitle || roleConfig.label}
+              </p>
+            </div>
           </div>
+          <p className="text-[9.5px] text-gray-400 leading-tight mb-2.5 truncate">
+            {user?.department || roleConfig.description}
+          </p>
+
+          <button
+            type="button"
+            onClick={logout}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
+            title="Sign out of BhoomiSetu"
+          >
+            <LogOut size={13} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
     </aside>
   );
 }
+

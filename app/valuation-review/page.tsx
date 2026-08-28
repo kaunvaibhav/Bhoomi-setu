@@ -15,11 +15,15 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import ValuationReviewCard from "@/components/ValuationReviewCard";
 import Modal from "@/components/Modal";
 import ToastNotification, { useToast } from "@/components/ToastNotification";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
+import { LogOut } from "lucide-react";
 import { FLAGGED_PARCELS, VALUATION_KPIS, type UserRole } from "@/lib/mockData";
 import { formatCurrency, getAnomalyColor } from "@/lib/utils";
 
 export default function ValuationReviewPage() {
-  const [role, setRole] = useState<UserRole>("ministry");
+  const { user, logout } = useAuth();
+  const role: UserRole = (user?.role as UserRole) || "ministry";
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewNote, setReviewNote] = useState("");
@@ -64,26 +68,45 @@ export default function ValuationReviewPage() {
     : [];
 
   return (
-    <>
+    <ProtectedRoute allowedRoles={["ministry", "district"]}>
       <TopUtilityBar />
       <div className="min-h-screen bg-[#F8FAFC]">
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-          <div className="px-4 h-14 flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-1.5 text-gray-500 hover:text-[#1F3864] text-sm font-medium">
-              <ArrowLeft size={16} /> Dashboard
-            </Link>
-            <span className="text-gray-300">/</span>
-            <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-              <Brain size={15} className="text-purple-600" /> Compensation Valuation Review
-            </span>
+          <div className="px-4 h-14 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard" className="flex items-center gap-1.5 text-gray-500 hover:text-[#1F3864] text-sm font-medium">
+                <ArrowLeft size={16} /> Dashboard
+              </Link>
+              <span className="text-gray-300">/</span>
+              <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                <Brain size={15} className="text-purple-600" /> Compensation Valuation Review
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 bg-[#EAF0F8] px-3 py-1.5 rounded-xl border border-blue-200/60">
+                <div className="w-5 h-5 rounded-full bg-[#1F3864] text-white text-[9px] font-bold flex items-center justify-center">
+                  {user?.avatarInitials || "U"}
+                </div>
+                <span className="text-xs font-semibold text-[#1F3864]">{user?.name}</span>
+              </div>
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer"
+                title="Sign out of BhoomiSetu"
+              >
+                <LogOut size={13} />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="flex">
           {/* Sidebar */}
           <div className="hidden lg:block">
-            <DashboardSidebar currentRole={role} onRoleChange={setRole} />
+            <DashboardSidebar currentRole={role} />
           </div>
 
           <main id="main-content" className="flex-1 min-w-0 p-5 space-y-5">
@@ -324,6 +347,6 @@ export default function ValuationReviewPage() {
       </Modal>
 
       <ToastNotification toasts={toasts} onDismiss={dismissToast} />
-    </>
+    </ProtectedRoute>
   );
 }

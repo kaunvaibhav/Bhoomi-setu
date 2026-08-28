@@ -79,7 +79,7 @@ function HeroSection() {
           >
             <motion.div variants={fadeUp}>
               <span className="inline-block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 border-l-4 border-[#FF9933] pl-3">
-                Government of India · Department of Land Resources
+                Government of India · Ministry of Rural Development · Department of Land Resources (DoLR)
               </span>
             </motion.div>
 
@@ -144,7 +144,7 @@ function HeroSection() {
               <div className="bg-[#1F3864] px-5 py-3 flex items-center justify-between">
                 <div>
                   <p className="text-white font-semibold text-sm">National Acquisition Overview</p>
-                  <p className="text-blue-200 text-[10px]">Ministry Analyst · Prototype data</p>
+                  <p className="text-blue-200 text-[10px]">Ministry Analyst (MoRD / DoLR) · Prototype data</p>
                 </div>
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" aria-label="Live indicator" />
               </div>
@@ -470,7 +470,7 @@ function ArchitectureSection() {
       title: "User Layer",
       icon: <Users size={24} />,
       color: "#1F3864",
-      items: ["Ministry / DoLR", "State Government", "District Authority", "PIA Officer", "Field Officer", "Citizen"],
+      items: ["Ministry of Rural Development / DoLR", "State Government", "District Authority", "PIA Officer", "Field Officer", "Citizen"],
     },
     {
       title: "Core Platform Layer",
@@ -602,7 +602,7 @@ function StakeholdersSection() {
   const roles = [
     {
       icon: <Landmark size={24} />,
-      title: "Central Ministry / DoLR",
+      title: "Ministry of Rural Development / DoLR",
       desc: "National dashboard, cross-state comparison, policy analytics, and exception monitoring.",
       color: "#1F3864",
     },
@@ -804,6 +804,9 @@ function DemoSection() {
             <table className="w-full text-sm" aria-label="SIH submission details">
               <tbody>
                 {[
+                  ["Organization", SIH_META.organization],
+                  ["Department", SIH_META.department],
+                  ["Jurisdiction", SIH_META.country],
                   ["Problem Statement ID", SIH_META.problemStatementId],
                   ["Problem Statement", SIH_META.problemStatement],
                   ["Theme", SIH_META.theme],

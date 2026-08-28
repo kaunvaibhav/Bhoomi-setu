@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
 import ToastNotification, { useToast } from "@/components/ToastNotification";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
+import { LogOut } from "lucide-react";
 
 const WORKFLOW_PREVIEW = [
   "Submission",
@@ -35,6 +38,7 @@ interface FormData {
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const { user, logout } = useAuth();
   const { toasts, addToast, dismissToast } = useToast();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -118,17 +122,30 @@ export default function NewProjectPage() {
   const LABEL = "block text-xs font-semibold text-gray-700 mb-1.5";
 
   return (
-    <>
+    <ProtectedRoute>
       <TopUtilityBar />
       <div className="min-h-screen bg-[#EAF0F8]">
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-          <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-1.5 text-gray-500 hover:text-[#1F3864] text-sm font-medium">
-              <ArrowLeft size={16} /> Dashboard
-            </Link>
-            <span className="text-gray-300">/</span>
-            <span className="text-sm font-medium text-[#1F3864]">Submit New Land Acquisition Proposal</span>
+          <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard" className="flex items-center gap-1.5 text-gray-500 hover:text-[#1F3864] text-sm font-medium">
+                <ArrowLeft size={16} /> Dashboard
+              </Link>
+              <span className="text-gray-300">/</span>
+              <span className="text-sm font-medium text-[#1F3864]">Submit New Land Acquisition Proposal</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer"
+                title="Sign out of BhoomiSetu"
+              >
+                <LogOut size={13} />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -414,6 +431,6 @@ export default function NewProjectPage() {
         </main>
       </div>
       <ToastNotification toasts={toasts} onDismiss={dismissToast} />
-    </>
+    </ProtectedRoute>
   );
 }
