@@ -92,33 +92,11 @@ Edit `/lib/mockData.ts`:
 
 ```typescript
 export const SIH_META = {
-  problemStatementId: "PS-XXXX",   // Update
-  teamId: "SIH-XXXX",             // Update
-  teamName: "[Insert Team Name]",  // Update
+  problemStatementId: "PS-26016",   // Update
+  teamName: "HardForkers",  // Update
 };
 ```
 
----
 
-## Prototype Limitations
-
-- All data is illustrative — not real government records
-- Government integrations are simulated (SVAMITVA, DILRMP, PFMS, DigiLocker, Aadhaar)
-- GIS data is schematic — not legally accurate cadastral boundaries
-- AI valuation output is a mock result
-- No real authentication or data persistence
-
----
-
-## Future Production Requirements
-
-- PostgreSQL with PostGIS for geospatial queries
-- JWT authentication with NIC SSO or Aadhaar OTP
-- SVAMITVA, DILRMP, Bhuvan, PFMS, DigiLocker, State IGRS integrations
-- AI model trained on verified registered transaction data
-- VAPT certification and NIC/MeitY cloud hosting
-- Audit logging and field-level encryption
-
----
 
 *Prototype for Smart India Hackathon 2026 · Ministry of Rural Development · Department of Land Resources · Government of India*
