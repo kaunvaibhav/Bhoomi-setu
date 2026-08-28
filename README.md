@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BhoomiSetu — Real-Time National Land Acquisition & Management System
 
-## Getting Started
+> **Smart India Hackathon 2026 Prototype**
+>
+> ⚠️ Prototype disclaimer: All dashboard values, project records, and case data shown are **illustrative sample data** and must be replaced with verified Department of Land Resources data before any production deployment.
 
-First, run the development server:
+---
+
+## Product Overview
+
+**BhoomiSetu** (भूमि सेतु) — *Bridging Land, Data & Decisions*
+
+BhoomiSetu is a Government of India digital platform proposal that connects Central Ministries, State Governments, District Authorities, Project Implementing Agencies (PIA), Field Officers, and Citizens on one unified system for managing the complete land acquisition lifecycle under the **Right to Fair Compensation and Transparency in Land Acquisition, Rehabilitation and Resettlement Act, 2013 (RFCTLARR Act)**.
+
+**Ministry:** Ministry of Rural Development
+**Department:** Department of Land Resources
+**Problem Statement:** Real-Time National Land Acquisition & Management System for End-to-End Digital Monitoring and Decision Support
+
+---
+
+## Key Features
+
+- **National Dashboard** — Real-time KPIs across all states — area notified, acquired, compensation disbursed, and possession progress
+- **12-Stage Lifecycle Workflow** — Standardized case routing from Project Proposal through Project Handover with audit trail
+- **GIS Visualization** — Schematic map of national project footprint with state-level status markers
+- **AI Valuation Anomaly Review** — Screens compensation declared values against comparable transactions and circle rates; flags anomalies for officer review
+- **Citizen Case Tracking** — Citizens can look up their case status, compensation details, documents, and next actions by Case ID
+- **Role-Based Dashboards** — Ministry, State, District Collector, PIA, Field Officer, and Citizen views
+- **Proposal Submission** — 4-step PIA proposal form with document upload
+- **Documents and Audit Trail** — Version-controlled document repository with uploader role tracking
+- **Alerts and Notifications** — Dashboard alerts for pending actions, milestone risks, and valuation flags
+- **Demo Role Switcher** — Switch between all 6 roles to demonstrate the platform from each perspective
+
+---
+
+## Tech Stack
+
+- **Next.js 14** (App Router) — Framework
+- **TypeScript** — Type safety
+- **Tailwind CSS** — Styling with custom government color tokens
+- **Recharts** — Dashboard charts (bar, line)
+- **Framer Motion** — Subtle animations
+- **lucide-react** — Icons
+- **Mock API Layer** — Simulated async fetch functions in `/lib/mockApi.ts`
+
+---
+
+## Local Setup
 
 ```bash
+cd bhoomi-setu
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Demo Flows
 
-## Learn More
+### Flow A: Ministry Monitoring
+`/` → `/dashboard` → `/projects/PROJ-UP-001` → Lifecycle + AI callout
 
-To learn more about Next.js, take a look at the following resources:
+### Flow B: AI Valuation Review
+`/dashboard` → `/valuation-review` → Select UP-AGR-004821 → View anomaly → Mark as Reviewed
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Flow C: Citizen Transparency
+`/` → `/track-case` → Enter `BS-UP-2026-004821` → Full case detail
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Flow D: PIA Proposal
+`/login` → Continue as PIA Officer → `/projects/new` → 4-step form → Submit
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Demo Access
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All demo access requires no real authentication.
+
+| Role | Access |
+|------|--------|
+| Ministry Analyst | Login page demo button |
+| District Collector | Login page demo button |
+| PIA Officer | Login page demo button |
+| Citizen | Track My Case page |
+
+**Sample Case ID:** `BS-UP-2026-004821`
+
+---
+
+## Customizing Data
+
+Edit `/lib/mockData.ts`:
+
+```typescript
+export const SIH_META = {
+  problemStatementId: "PS-XXXX",   // Update
+  teamId: "SIH-XXXX",             // Update
+  teamName: "[Insert Team Name]",  // Update
+};
+```
+
+---
+
+## Prototype Limitations
+
+- All data is illustrative — not real government records
+- Government integrations are simulated (SVAMITVA, DILRMP, PFMS, DigiLocker, Aadhaar)
+- GIS data is schematic — not legally accurate cadastral boundaries
+- AI valuation output is a mock result
+- No real authentication or data persistence
+
+---
+
+## Future Production Requirements
+
+- PostgreSQL with PostGIS for geospatial queries
+- JWT authentication with NIC SSO or Aadhaar OTP
+- SVAMITVA, DILRMP, Bhuvan, PFMS, DigiLocker, State IGRS integrations
+- AI model trained on verified registered transaction data
+- VAPT certification and NIC/MeitY cloud hosting
+- Audit logging and field-level encryption
+
+---
+
+*Prototype for Smart India Hackathon 2026 · Ministry of Rural Development · Department of Land Resources · Government of India*
