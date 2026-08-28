@@ -1,8 +1,6 @@
 # BhoomiSetu — Real-Time National Land Acquisition & Management System
 
 > **Smart India Hackathon 2026 Prototype**
->
-> ⚠️ Prototype disclaimer: All dashboard values, project records, and case data shown are **illustrative sample data** and must be replaced with verified Department of Land Resources data before any production deployment.
 
 ---
 
