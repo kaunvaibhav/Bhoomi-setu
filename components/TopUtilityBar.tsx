@@ -19,10 +19,14 @@ export default function TopUtilityBar() {
         <div className="max-w-8xl mx-auto flex items-center justify-between gap-4">
           {/* Left: GoI Identity */}
           <div className="flex items-center gap-3">
-            {/* Emblem placeholder */}
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#1F3864] flex items-center justify-center" aria-label="Government of India emblem placeholder">
-              <span className="text-white text-xs font-bold leading-none">GoI</span>
-            </div>
+            {/* Emblem logo */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original"
+              alt="State Emblem of India"
+              className="flex-shrink-0 w-8 h-8 object-contain"
+              referrerPolicy="no-referrer"
+            />
             <div className="leading-tight">
               <div className="text-[11px] font-medium text-[#1F3864]" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>भारत सरकार</div>
               <div className="text-[10px] text-gray-500 font-medium tracking-wide uppercase">Government of India</div>

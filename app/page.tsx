@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Clock, AlertTriangle, IndianRupee, Layers, Map, Brain, Users,
   CheckCircle, ArrowRight, ChevronRight, Play, Shield, Database,
@@ -13,6 +14,20 @@ import MainNavbar from "@/components/MainNavbar";
 import ProcessStepper from "@/components/ProcessStepper";
 import Footer from "@/components/Footer";
 import { SIH_META, SAMPLE_STATES, SAMPLE_PROJECTS } from "@/lib/mockData";
+
+const NationalFootprintMap = dynamic(
+  () => import("@/components/NationalFootprintMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full min-h-[420px] bg-[#F1F5F9] rounded-xl flex flex-col items-center justify-center border border-slate-200 p-6 text-center">
+        <div className="w-8 h-8 border-3 border-[#1F3864] border-t-[#FF9933] rounded-full animate-spin mb-3" />
+        <p className="text-xs font-semibold text-[#1F3864]">Loading Interactive India GIS Map...</p>
+        <p className="text-[11px] text-gray-400 mt-1">Initializing Leaflet & OpenStreetMap tiles</p>
+      </div>
+    ),
+  }
+);
 
 // Animation variants
 const fadeUp: Variants = {
@@ -695,30 +710,9 @@ function MapSection() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Schematic map */}
-          <div className="bg-[#EAF0F8] rounded-2xl p-5">
-            <svg viewBox="0 0 120 130" className="w-full" style={{ height: "320px" }} aria-label="Schematic map of India with project state markers">
-              <path d="M42,10 L50,8 L62,10 L74,14 L80,22 L82,32 L78,40 L80,50 L74,60 L66,72 L58,85 L54,96 L51,104 L49,104 L46,96 L42,85 L34,72 L28,60 L22,50 L20,40 L22,30 L28,20 L35,14 Z" fill="#D1E8F7" stroke="#93C5D7" strokeWidth="1.2" />
-              <path d="M46,8 L50,5 L58,4 L64,7 L62,10 L50,8 Z" fill="#D1E8F7" stroke="#93C5D7" strokeWidth="0.8" />
-              <path d="M74,18 L82,16 L90,18 L92,26 L86,28 L80,24 Z" fill="#D1E8F7" stroke="#93C5D7" strokeWidth="0.8" />
-
-              {/* State markers */}
-              {[
-                { id: "UP", x: 62, y: 36, color: "#3B82F6", label: "UP\n14 proj" },
-                { id: "RJ", x: 36, y: 40, color: "#F59E0B", label: "RJ\n9 proj" },
-                { id: "MH", x: 42, y: 64, color: "#138808", label: "MH\n11 proj" },
-                { id: "KA", x: 44, y: 78, color: "#3B82F6", label: "KA\n7 proj" },
-                { id: "MP", x: 54, y: 54, color: "#D97706", label: "MP\n8 proj" },
-              ].map((s) => (
-                <g key={s.id} transform={`translate(${s.x},${s.y})`}>
-                  <circle cx="0" cy="0" r="5" fill={s.color} opacity="0.9" />
-                  <circle cx="0" cy="0" r="9" fill="none" stroke={s.color} strokeWidth="1" opacity="0.3" />
-                  <text x="7" y="-4" fontSize="5" fill="#1F3864" fontWeight="700">{s.id}</text>
-                </g>
-              ))}
-
-              <text x="5" y="126" fontSize="4" fill="#9CA3AF">Schematic · Illustrative sample data</text>
-            </svg>
+          {/* Interactive Leaflet India Map */}
+          <div className="bg-[#EAF0F8] rounded-2xl p-4 lg:p-5 h-[530px] flex flex-col border border-blue-100 shadow-sm">
+            <NationalFootprintMap />
           </div>
 
           {/* State data + projects */}

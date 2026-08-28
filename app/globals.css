@@ -169,3 +169,108 @@ body {
   flex-direction: column;
   gap: 0.5rem;
 }
+
+/* ── BHOOMISETU LEAFLET MAP CUSTOM STYLES ───────────────────────────────── */
+.leaflet-container {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Clean, minimal, subtle government-tech tile treatment for OpenStreetMap */
+.gov-osm-tiles .leaflet-tile {
+  filter: grayscale(32%) contrast(95%) brightness(102%);
+  transition: filter 0.3s ease;
+}
+
+/* Custom Marker Pulse */
+@keyframes leaflet-marker-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Clean Popup Styling */
+.leaflet-popup.bhoomi-popup-clean .leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px -5px rgba(31, 56, 100, 0.15), 0 8px 10px -6px rgba(31, 56, 100, 0.1) !important;
+  overflow: hidden !important;
+}
+
+.leaflet-popup.bhoomi-popup-clean .leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup.bhoomi-popup-clean .leaflet-popup-tip {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(31, 56, 100, 0.08) !important;
+}
+
+.leaflet-popup-close-button {
+  top: 8px !important;
+  right: 8px !important;
+  color: #64748b !important;
+  font-size: 16px !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Clean Zoom Control Buttons */
+.leaflet-control-zoom.leaflet-bar {
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 6px rgba(31, 56, 100, 0.1) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  margin-top: 12px !important;
+  margin-left: 12px !important;
+}
+
+.leaflet-control-zoom.leaflet-bar a {
+  background-color: #ffffff !important;
+  color: #1F3864 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+.leaflet-control-zoom.leaflet-bar a:hover {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* OSM Attribution */
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(4px);
+  font-size: 9.5px !important;
+  color: #64748b !important;
+  border-top-left-radius: 6px !important;
+  padding: 1px 6px !important;
+}
+
