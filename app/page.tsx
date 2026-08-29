@@ -441,7 +441,7 @@ function ComponentsSection() {
           {components.map((c, i) => (
             <motion.div
               key={c.title}
-              className="bg-white rounded-xl border border-gray-100 p-5 shadow-card card-hover group"
+              className="bg-white rounded-xl border border-gray-100 p-5 shadow-card card-hover group transition-all duration-300 hover:translate-y-1 hover:shadow-lg"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
