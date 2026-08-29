@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl, GeoJSON, WMSTileLayer } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { RotateCcw, Layers, MapPin, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { MOCK_PARCELS_GEOJSON } from "@/lib/mockParcelsGeoJSON";
 
 // Project state metrics as specified in requirements
 export interface ProjectStateMetric {
@@ -218,12 +219,100 @@ export default function NationalFootprintMap() {
         >
           <MapViewController center={defaultCenter} zoom={defaultZoom} />
 
-          {/* Clean, desaturated OpenStreetMap tile layer for government dashboard aesthetics */}
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            className="gov-osm-tiles"
-          />
+          <LayersControl position="topright">
+            <LayersControl.BaseLayer checked name="OpenStreetMap (Standard)">
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                className="gov-osm-tiles"
+              />
+            </LayersControl.BaseLayer>
+
+            <LayersControl.BaseLayer name="ISRO Bhuvan (Satellite)">
+              <WMSTileLayer
+                attribution='&copy; <a href="https://bhuvan.nrsc.gov.in" target="_blank" rel="noopener noreferrer">ISRO Bhuvan</a>'
+                url="https://bhuvan-vec2.nrsc.gov.in/bhuvan/wms"
+                layers="multilayers"
+                format="image/png"
+                transparent={false}
+                version="1.1.1"
+              />
+            </LayersControl.BaseLayer>
+
+            <LayersControl.BaseLayer name="High-Res Satellite (Backup)">
+              <TileLayer
+                attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              />
+            </LayersControl.BaseLayer>
+
+            <LayersControl.Overlay checked name="Land Parcels (GeoJSON)">
+              <GeoJSON
+                data={MOCK_PARCELS_GEOJSON}
+                style={(feature) => {
+                  const flagged = feature?.properties?.flagged;
+                  const status = feature?.properties?.status;
+                  let color = "#3B82F6"; // default blue
+                  if (flagged) color = "#DC2626"; // red for anomaly
+                  else if (status === "acquired") color = "#16A34A"; // green
+                  else if (status === "compensated") color = "#2563EB"; // blue
+                  else if (status === "disputed") color = "#D97706"; // amber
+                  
+                  return {
+                    fillColor: color,
+                    weight: 1.5,
+                    opacity: 0.8,
+                    color: color,
+                    fillOpacity: 0.4,
+                    dashArray: flagged ? "4, 4" : undefined
+                  };
+                }}
+                onEachFeature={(feature, layer) => {
+                  const props = feature.properties;
+                  const popupContent = `
+                    <div style="font-family: Inter, sans-serif; padding: 4px; min-width: 190px; text-align: left;">
+                      <div style="font-weight: 700; color: #1F3864; font-size: 12px; margin-bottom: 2px;">
+                        Parcel: ${props.ulpin}
+                      </div>
+                      <div style="font-size: 9px; color: #6B7280; font-weight: 500; margin-bottom: 6px;">
+                        ${props.project}
+                      </div>
+                      <div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; font-size: 10px; border-top: 1px solid #E2E8F0; padding-top: 6px;">
+                        <span style="color: #64748B;">Owner:</span><span style="font-weight: 600; color: #1E293B;">${props.ownerName}</span>
+                        <span style="color: #64748B;">Area:</span><span style="font-weight: 600; color: #1E293B;">${props.area}</span>
+                        <span style="color: #64748B;">Type:</span><span style="font-weight: 500; color: #1E293B;">${props.landType}</span>
+                        <span style="color: #64748B;">Status:</span><span style="font-weight: 700; text-transform: uppercase; color: ${props.status === 'acquired' ? '#16A34A' : props.status === 'disputed' ? '#DC2626' : '#2563EB'};">${props.status}</span>
+                        <span style="color: #64748B;">Valuation:</span><span style="font-weight: 600; color: #1E293B;">${props.declaredValue}</span>
+                      </div>
+                      ${props.flagged ? `
+                        <div style="margin-top: 8px; padding: 4px 6px; background: #FEF2F2; border-left: 3px solid #EF4444; border-radius: 4px; font-size: 9px; color: #991B1B;">
+                          <strong>Valuation Flag:</strong> Anomaly Score ${props.anomalyScore}%
+                        </div>
+                      ` : ""}
+                    </div>
+                  `;
+                  layer.bindPopup(popupContent, { minWidth: 190 });
+                  
+                  layer.on({
+                    mouseover: (e) => {
+                      const l = e.target;
+                      l.setStyle({
+                        fillOpacity: 0.7,
+                        weight: 2.5
+                      });
+                    },
+                    mouseout: (e) => {
+                      const l = e.target;
+                      l.setStyle({
+                        fillOpacity: 0.4,
+                        weight: 1.5
+                      });
+                    }
+                  });
+                }}
+              />
+            </LayersControl.Overlay>
+          </LayersControl>
 
           {/* State Markers */}
           {STATE_PROJECT_DATA.map((state) => {

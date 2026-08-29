@@ -60,6 +60,7 @@ This document contains the step-by-step, phase-by-phase roadmap required to full
 - [x] **3.3 Stage 3: Social Impact Assessment (SIA)**
   - [x] Develop interactive interface for SIA agencies to upload assessment reports.
   - [x] Build a sub-feature to capture affected/displaced families counts and preliminary asset statistics.
+    - *Note: Completed SIA report upload, affected families census tracking, and baseline asset metrics.*
 
 - [x] **3.4 Stage 4: Section 11 Notification**
   - [x] Implement an e-Notification generator that dynamically populates public notices.
@@ -80,8 +81,9 @@ This document contains the step-by-step, phase-by-phase roadmap required to full
 
 - [x] **4.1 GIS Layer & Geospatial Visualization**
   - [x] Integrate Leaflet.js / Mapbox with the dashboard.
-  - [ ] Enable rendering of GeoJSON polygons representing land parcels.
-  - [ ] Integrate ISRO Bhuvan satellite basemap layer for realistic geographic reference.
+  - [x] Enable rendering of GeoJSON polygons representing land parcels.
+  - [x] Integrate ISRO Bhuvan satellite basemap layer for realistic geographic reference.
+    - *Note: Added base map switching (OSM, ISRO Bhuvan Satellite via WMS, and Esri Satellite backup) and an overlay of styled land parcel polygons with hover effects and detailed popups.*
 
 - [ ] **4.2 Stage 7: Land Survey & Measurement**
   - [ ] Build a responsive mobile view (Progressive Web App or React Native interface) for Field Survey Officers.

@@ -1,7 +1,7 @@
 "use client";
 import { useState, use, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Map, Download, UserPlus, Clock, AlertTriangle, CheckSquare, Square, ThumbsUp, ThumbsDown, CheckCircle, FileText, MapPin, XCircle } from "lucide-react";
+import { ArrowLeft, Map, Download, UserPlus, Clock, AlertTriangle, CheckSquare, Square, ThumbsUp, ThumbsDown, CheckCircle, FileText, MapPin, XCircle, Bell, Users, Shield } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
 import StatusBadge from "@/components/StatusBadge";
 import ProcessStepper from "@/components/ProcessStepper";

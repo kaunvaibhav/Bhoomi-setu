@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { Bell, ArrowRight, MapPin, Calendar, FileText, CheckCircle } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
