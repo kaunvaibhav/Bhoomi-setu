@@ -63,6 +63,43 @@ export default function ProjectDetailPage({ params }: PageProps) {
   const acquisitionPct = calculateProgress(project.landAcquired, project.landRequired);
   const compensationPct = calculateProgress(project.compensationDisbursed, project.compensationAssessed);
 
+  // Stage 3 SIA states
+  const [siaFileUploaded, setSiaFileUploaded] = useState(false);
+  const [siaAffected, setSiaAffected] = useState(120);
+  const [siaDisplaced, setSiaDisplaced] = useState(45);
+  const [siaAssets, setSiaAssets] = useState({
+    agri: 85,
+    res: 35,
+    comm: 10,
+  });
+
+  const handleApproveSia = () => {
+    if (!siaFileUploaded || siaAffected <= 0) return;
+    setProject(prev => {
+      if (!prev) return null;
+      // Add the new SIA document
+      const newDoc = {
+        id: `D-${Date.now().toString().slice(-4)}`,
+        name: "Social Impact Assessment Report (Final)",
+        type: "SIA",
+        version: "v1.0",
+        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+        uploaderRole: "SIA Agency",
+        size: "3.5 MB",
+        url: "#",
+      };
+      return {
+        ...prev,
+        currentStage: 4, // Section 11 Notification
+        affectedFamilies: siaAffected,
+        status: "on-track",
+        documents: [...prev.documents, newDoc],
+        lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
+      };
+    });
+    addToast("success", "SIA report and metrics submitted. Advanced to Stage 4: Section 11 Notification.");
+  };
+
   const toggleCheck = (key: keyof typeof scrutinyChecks) => {
     setScrutinyChecks(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -301,6 +338,116 @@ export default function ProjectDetailPage({ params }: PageProps) {
                         <ThumbsDown size={13} /> Send Back
                       </button>
                     </div>
+                  </div>
+                ) : project.currentStage === 3 ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center gap-2 border-b border-blue-200/50 pb-3">
+                      <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-700">
+                        <FileText size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#1F3864]">Stage 3: Social Impact Assessment</h3>
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">SIA Agency Console</p>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                      Conduct community consultations and submit the finalized Social Impact Assessment (SIA) report:
+                    </p>
+
+                    <div className="space-y-3">
+                      {/* Document upload simulation */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Upload SIA Report (PDF)</label>
+                        <div className="border border-dashed border-blue-200 rounded-lg p-3 bg-white text-center hover:bg-blue-50/20 transition-colors cursor-pointer relative">
+                          <input 
+                            type="file" 
+                            accept=".pdf" 
+                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                            onChange={() => {
+                              setSiaFileUploaded(true);
+                              addToast("success", "SIA_Report_Final.pdf uploaded successfully (prototype)");
+                            }} 
+                          />
+                          <p className="text-xs text-[#1F3864] font-semibold">
+                            {siaFileUploaded ? "✓ SIA_Report_Final.pdf uploaded" : "Click to select or drag PDF file"}
+                          </p>
+                          <p className="text-[9px] text-gray-400 mt-0.5">Maximum size: 10MB</p>
+                        </div>
+                      </div>
+
+                      {/* Capturing families counts */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label htmlFor="affected-families-input" className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Affected Families</label>
+                          <input
+                            id="affected-families-input"
+                            type="number"
+                            value={siaAffected}
+                            onChange={(e) => setSiaAffected(parseInt(e.target.value) || 0)}
+                            className="w-full text-xs p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1F3864] bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="displaced-families-input" className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Displaced Families</label>
+                          <input
+                            id="displaced-families-input"
+                            type="number"
+                            value={siaDisplaced}
+                            onChange={(e) => setSiaDisplaced(parseInt(e.target.value) || 0)}
+                            className="w-full text-xs p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1F3864] bg-white"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Preliminary assets stats */}
+                      <div className="space-y-1">
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Preliminary Assets Impacted</label>
+                        <div className="grid grid-cols-3 gap-1 bg-white p-2 rounded-lg border border-gray-200">
+                          <div>
+                            <span className="text-[9px] text-gray-400 block font-semibold">Agri. Land (Ha)</span>
+                            <input 
+                              type="number" 
+                              value={siaAssets.agri} 
+                              onChange={(e) => setSiaAssets(prev => ({...prev, agri: parseInt(e.target.value) || 0}))}
+                              className="w-full text-xs p-1 focus:outline-none" 
+                              aria-label="Agricultural land in hectares"
+                            />
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-gray-400 block font-semibold">Res. Units</span>
+                            <input 
+                              type="number" 
+                              value={siaAssets.res} 
+                              onChange={(e) => setSiaAssets(prev => ({...prev, res: parseInt(e.target.value) || 0}))}
+                              className="w-full text-xs p-1 focus:outline-none" 
+                              aria-label="Residential units"
+                            />
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-gray-400 block font-semibold">Comm. Units</span>
+                            <input 
+                              type="number" 
+                              value={siaAssets.comm} 
+                              onChange={(e) => setSiaAssets(prev => ({...prev, comm: parseInt(e.target.value) || 0}))}
+                              className="w-full text-xs p-1 focus:outline-none" 
+                              aria-label="Commercial units"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleApproveSia}
+                      disabled={!siaFileUploaded || siaAffected <= 0}
+                      className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
+                        siaFileUploaded && siaAffected > 0 ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm" : "bg-gray-300 cursor-not-allowed text-gray-500"
+                      }`}
+                    >
+                      <ThumbsUp size={13} /> Submit SIA & Move to Stage 4
+                    </button>
                   </div>
                 ) : (
                   <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">

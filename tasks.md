@@ -57,9 +57,9 @@ This document contains the step-by-step, phase-by-phase roadmap required to full
   - [x] Build a checklist-based dashboard for District/State officers to check completeness and budget.
   - [x] Create workflow transitions: Approve -> Move to SIA; Reject -> Back to PIA with comments.
 
-- [ ] **3.3 Stage 3: Social Impact Assessment (SIA)**
-  - [ ] Develop interactive interface for SIA agencies to upload assessment reports.
-  - [ ] Build a sub-feature to capture affected/displaced families counts and preliminary asset statistics.
+- [x] **3.3 Stage 3: Social Impact Assessment (SIA)**
+  - [x] Develop interactive interface for SIA agencies to upload assessment reports.
+  - [x] Build a sub-feature to capture affected/displaced families counts and preliminary asset statistics.
 
 - [ ] **3.4 Stage 4: Section 11 Notification**
   - [ ] Implement an e-Notification generator that dynamically populates public notices.
