@@ -100,6 +100,106 @@ export default function ProjectDetailPage({ params }: PageProps) {
     addToast("success", "SIA report and metrics submitted. Advanced to Stage 4: Section 11 Notification.");
   };
 
+  // Stage 4 Section 11 states
+  const [s11NotificationText, setS11NotificationText] = useState(
+    `NOTIFICATION UNDER SECTION 11(1) OF RFCTLARR ACT 2013\n\nWhereas it appears to the Government that land is required for a public purpose, namely for the connectivity corridor in district Varanasi, Uttar Pradesh...\n\nTherefore, notice is hereby given to all landowners that any land transaction in the specified area is restricted.`
+  );
+
+  const handleApproveS11 = () => {
+    setProject(prev => {
+      if (!prev) return null;
+      const newDoc = {
+        id: `D-${Date.now().toString().slice(-4)}`,
+        name: "Section 11 Notification (Gazette)",
+        type: "Gazette Notification",
+        version: "v1.0",
+        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+        uploaderRole: "State Government",
+        size: "1.2 MB",
+        url: "#",
+      };
+      return {
+        ...prev,
+        currentStage: 5, // Objection Hearing
+        status: "on-track",
+        documents: [...prev.documents, newDoc],
+        lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
+      };
+    });
+    addToast("success", "Section 11 Notification approved and published. Advanced to Stage 5: Objection Hearing.");
+  };
+
+  // Stage 5 Objection Hearing states
+  const [hearingDate, setHearingDate] = useState("2026-09-15");
+  const [objections, setObjections] = useState([
+    { id: "OBJ-1", owner: "Ramesh C. Patel", detail: "Proposed compensation is below market rates in Ramnagar.", resolved: false },
+    { id: "OBJ-2", owner: "Savitri Devi", detail: "Requesting alignment bypass around historical well on survey plot 201.", resolved: false },
+  ]);
+
+  const toggleObjectionResolved = (objId: string) => {
+    setObjections(prev => prev.map(o => o.id === objId ? { ...o, resolved: !o.resolved } : o));
+    addToast("info", `Objection ${objId} status updated`);
+  };
+
+  const handleCompleteObjections = () => {
+    setProject(prev => {
+      if (!prev) return null;
+      const newDoc = {
+        id: `D-${Date.now().toString().slice(-4)}`,
+        name: "Objection Registers & Resolutions Report",
+        type: "Report",
+        version: "v1.0",
+        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+        uploaderRole: "District Collector",
+        size: "2.4 MB",
+        url: "#",
+      };
+      return {
+        ...prev,
+        currentStage: 6, // Declaration (Section 19)
+        status: "on-track",
+        documents: [...prev.documents, newDoc],
+        lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
+      };
+    });
+    addToast("success", "Objections resolved & registered. Advanced to Stage 6: Section 19 Declaration.");
+  };
+
+  // Stage 6 Section 19 states
+  const [s19SignatureHash, setS19SignatureHash] = useState("");
+  const [s19Signed, setS19Signed] = useState(false);
+
+  const handleSignS19 = () => {
+    setS19SignatureHash(`SHA256-${Math.random().toString(36).substring(2, 10).toUpperCase()}`);
+    setS19Signed(true);
+    addToast("success", "Section 19 Declaration signed digitally using official e-Sign.");
+  };
+
+  const handleApproveS19 = () => {
+    if (!s19Signed) return;
+    setProject(prev => {
+      if (!prev) return null;
+      const newDoc = {
+        id: `D-${Date.now().toString().slice(-4)}`,
+        name: "Section 19 Declaration (Official Gazette)",
+        type: "Gazette Declaration",
+        version: "v1.0",
+        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+        uploaderRole: "State Government",
+        size: "2.1 MB",
+        url: "#",
+      };
+      return {
+        ...prev,
+        currentStage: 7, // Land Survey & Measurement
+        status: "on-track",
+        documents: [...prev.documents, newDoc],
+        lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
+      };
+    });
+    addToast("success", "Section 19 Declaration published. Advanced to Stage 7: Survey and Measurement.");
+  };
+
   const toggleCheck = (key: keyof typeof scrutinyChecks) => {
     setScrutinyChecks(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -447,6 +547,144 @@ export default function ProjectDetailPage({ params }: PageProps) {
                       }`}
                     >
                       <ThumbsUp size={13} /> Submit SIA & Move to Stage 4
+                    </button>
+                  </div>
+                ) : project.currentStage === 4 ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center gap-2 border-b border-blue-200/50 pb-3">
+                      <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-700">
+                        <Bell size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#1F3864]">Stage 4: Gazette Notification</h3>
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">State Authority Console</p>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                      Review and publish the Section 11 preliminary notification text:
+                    </p>
+
+                    <div className="space-y-2">
+                      <textarea
+                        value={s11NotificationText}
+                        onChange={(e) => setS11NotificationText(e.target.value)}
+                        rows={6}
+                        className="w-full text-xs p-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 bg-white"
+                        aria-label="Section 11 notification text"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleApproveS11}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-[#138808] hover:bg-[#0E5F05] transition-all shadow-sm"
+                    >
+                      <ThumbsUp size={13} /> Publish Notification
+                    </button>
+                  </div>
+                ) : project.currentStage === 5 ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center gap-2 border-b border-blue-200/50 pb-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#EAF0F8] flex items-center justify-center text-blue-700">
+                        <Users size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#1F3864]">Stage 5: Objection Hearing Scheduler</h3>
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">District Collector Console</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Set Public Hearing Date</label>
+                        <input
+                          type="date"
+                          value={hearingDate}
+                          onChange={(e) => setHearingDate(e.target.value)}
+                          className="w-full text-xs p-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          aria-label="Public hearing date"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase">Received Objections ({objections.length})</label>
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                          {objections.map((obj) => (
+                            <div key={obj.id} className="p-2.5 bg-white rounded-lg border border-gray-200 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-gray-500">{obj.owner}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleObjectionResolved(obj.id)}
+                                  className={`text-[9px] px-2 py-0.5 rounded-full font-bold transition-all ${
+                                    obj.resolved ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                                  }`}
+                                >
+                                  {obj.resolved ? "Resolved" : "Pending"}
+                                </button>
+                              </div>
+                              <p className="text-[10px] text-gray-600 leading-relaxed font-medium">{obj.detail}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleCompleteObjections}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-[#1F3864] hover:bg-[#2A4A8A] transition-all shadow-sm"
+                    >
+                      <CheckCircle size={13} /> Complete Stage 5 Objections
+                    </button>
+                  </div>
+                ) : project.currentStage === 6 ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center gap-2 border-b border-blue-200/50 pb-3">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+                        <Shield size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#1F3864]">Stage 6: Section 19 Declaration</h3>
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Gazette Publisher Console</p>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                      Publish the formal Section 19 Declaration confirming land acquisition. Digitally sign using e-Sign credentials.
+                    </p>
+
+                    <div className="space-y-3 bg-white p-3 rounded-lg border border-blue-100">
+                      <div className="text-center py-2">
+                        {s19Signed ? (
+                          <div className="space-y-1.5">
+                            <span className="inline-flex items-center gap-1 text-green-700 font-bold text-xs bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+                              <CheckCircle size={12} /> Digitally Signed
+                            </span>
+                            <p className="text-[9px] text-gray-400 font-mono select-all mt-1">{s19SignatureHash}</p>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleSignS19}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                          >
+                            <Shield size={13} /> e-Sign Declaration
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleApproveS19}
+                      disabled={!s19Signed}
+                      className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
+                        s19Signed ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm" : "bg-gray-300 cursor-not-allowed text-gray-500"
+                      }`}
+                    >
+                      <ThumbsUp size={13} /> Publish Declaration & Move to Survey
                     </button>
                   </div>
                 ) : (

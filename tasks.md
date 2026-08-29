@@ -61,18 +61,18 @@ This document contains the step-by-step, phase-by-phase roadmap required to full
   - [x] Develop interactive interface for SIA agencies to upload assessment reports.
   - [x] Build a sub-feature to capture affected/displaced families counts and preliminary asset statistics.
 
-- [ ] **3.4 Stage 4: Section 11 Notification**
-  - [ ] Implement an e-Notification generator that dynamically populates public notices.
-  - [ ] Create notification approval flow for State Land Acquiring Authorities.
-  - [ ] Build a public portal page showing current active notifications.
+- [x] **3.4 Stage 4: Section 11 Notification**
+  - [x] Implement an e-Notification generator that dynamically populates public notices.
+  - [x] Create notification approval flow for State Land Acquiring Authorities.
+  - [x] Build a public portal page showing current active notifications.
 
-- [ ] **3.5 Stage 5: Objection Hearing Scheduler**
-  - [ ] Create a citizen portal page allowing affected land owners to log objections (with document upload).
-  - [ ] Build an interactive scheduler for District Collectors to set hearing dates and log objection outcomes.
+- [x] **3.5 Stage 5: Objection Hearing Scheduler**
+  - [x] Create a citizen portal page allowing affected land owners to log objections (with document upload).
+  - [x] Build an interactive scheduler for District Collectors to set hearing dates and log objection outcomes.
 
-- [ ] **3.6 Stage 6: Declaration (Section 19)**
-  - [ ] Create declaration publisher interface for the State Government.
-  - [ ] Set up audit log triggers to record approval timestamp and officer signature hashes.
+- [x] **3.6 Stage 6: Declaration (Section 19)**
+  - [x] Create declaration publisher interface for the State Government.
+  - [x] Set up audit log triggers to record approval timestamp and officer signature hashes.
 
 ---
 

@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/#features", label: "Features" },
   { href: "/#architecture", label: "Architecture" },
   { href: "/#process", label: "Process Flow" },
+  { href: "/notifications", label: "Public Notices" },
   { href: "/dashboard", label: "Live Dashboard" },
   { href: "/about", label: "About" },
   { href: "/help", label: "Help & Feedback" },

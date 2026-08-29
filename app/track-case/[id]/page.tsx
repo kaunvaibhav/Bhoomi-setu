@@ -1,16 +1,17 @@
 "use client";
-
-import { use } from "react";
+import { useState, use } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, Download, MessageSquarePlus, Phone, Home,
-  AlertCircle, CheckCircle, Clock, Info, FileText,
+  AlertCircle, CheckCircle, Clock, Info, FileText, Upload
 } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
 import MainNavbar from "@/components/MainNavbar";
 import Footer from "@/components/Footer";
 import CaseTimeline from "@/components/CaseTimeline";
 import DocumentList from "@/components/DocumentList";
+import Modal from "@/components/Modal";
+import ToastNotification, { useToast } from "@/components/ToastNotification";
 import { CITIZEN_CASE, SAMPLE_PROJECTS } from "@/lib/mockData";
 import { generateStageProgress } from "@/lib/workflowStages";
 import { formatCurrency, getStageName } from "@/lib/utils";
@@ -21,6 +22,36 @@ interface PageProps {
 
 export default function CitizenCaseDetailPage({ params }: PageProps) {
   const { id } = use(params);
+  const { toasts, addToast, dismissToast } = useToast();
+
+  const [objectionModalOpen, setObjectionModalOpen] = useState(false);
+  const [grievanceModalOpen, setGrievanceModalOpen] = useState(false);
+  
+  const [objectionText, setObjectionText] = useState("");
+  const [objectionFile, setObjectionFile] = useState(false);
+
+  const [grievanceText, setGrievanceText] = useState("");
+
+  const handleSubmitObjection = () => {
+    if (!objectionText.trim()) {
+      addToast("error", "Please enter objection details.");
+      return;
+    }
+    setObjectionModalOpen(false);
+    setObjectionText("");
+    setObjectionFile(false);
+    addToast("success", `Objection logged. Reference: OBJ-${Date.now().toString().slice(-4)}. Registered in case file.`);
+  };
+
+  const handleSubmitGrievance = () => {
+    if (!grievanceText.trim()) {
+      addToast("error", "Please enter grievance details.");
+      return;
+    }
+    setGrievanceModalOpen(false);
+    setGrievanceText("");
+    addToast("success", `Grievance registered. Ticket Ref: GRV-${Date.now().toString().slice(-4)}.`);
+  };
 
   // Only handle the sample case in prototype
   if (id !== "BS-UP-2026-004821") {
@@ -158,14 +189,36 @@ export default function CitizenCaseDetailPage({ params }: PageProps) {
             <h2 className="text-sm font-semibold text-[#1F3864] mb-4">Actions</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { icon: <Download size={16} />, label: "Download Documents", color: "#1F3864" },
-                { icon: <MessageSquarePlus size={16} />, label: "Submit Objection", color: "#B45309" },
-                { icon: <MessageSquarePlus size={16} />, label: "File Grievance", color: "#DC2626" },
-                { icon: <Phone size={16} />, label: "Contact Office", color: "#138808" },
+                { 
+                  icon: <Download size={16} />, 
+                  label: "Download Documents", 
+                  color: "#1F3864",
+                  onClick: () => addToast("info", "Starting package download for case documents...")
+                },
+                { 
+                  icon: <MessageSquarePlus size={16} />, 
+                  label: "Submit Objection", 
+                  color: "#B45309",
+                  onClick: () => setObjectionModalOpen(true)
+                },
+                { 
+                  icon: <MessageSquarePlus size={16} />, 
+                  label: "File Grievance", 
+                  color: "#DC2626",
+                  onClick: () => setGrievanceModalOpen(true)
+                },
+                { 
+                  icon: <Phone size={16} />, 
+                  label: "Contact Office", 
+                  color: "#138808",
+                  onClick: () => addToast("info", "District Acquisition Cell (Varanasi): +91 542 2250123")
+                },
               ].map((action) => (
                 <button
                   key={action.label}
-                  className="flex flex-col items-center gap-2 py-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors text-xs font-semibold text-gray-700"
+                  type="button"
+                  onClick={action.onClick}
+                  className="flex flex-col items-center gap-2 py-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors text-xs font-semibold text-gray-700 w-full"
                   aria-label={action.label}
                 >
                   <div
@@ -185,7 +238,7 @@ export default function CitizenCaseDetailPage({ params }: PageProps) {
                 <Home size={14} className="text-[#138808]" />
                 <p className="text-xs font-semibold text-[#138808]">Rehabilitation & Resettlement</p>
               </div>
-              <p className="text-xs text-gray-600 leading-relaxed">
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
                 R&R entitlements including housing support, livelihood assistance, and other benefits will be processed after possession. Your R&R case officer will contact you with next steps.
               </p>
             </div>
@@ -196,6 +249,110 @@ export default function CitizenCaseDetailPage({ params }: PageProps) {
           </p>
         </div>
       </main>
+
+      {/* Citizen Objection Modal */}
+      <Modal
+        isOpen={objectionModalOpen}
+        onClose={() => setObjectionModalOpen(false)}
+        title="Submit Legal Objection (Section 11/15)"
+        size="md"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setObjectionModalOpen(false)}
+              className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmitObjection}
+              className="px-4 py-2 bg-[#B45309] hover:bg-[#92400E] text-white rounded-xl text-xs font-semibold shadow-sm transition-colors"
+            >
+              Submit Objection
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-gray-600 leading-relaxed font-medium">
+            Pursuant to Section 15 of the RFCTLARR Act 2013, you may submit your objections regarding the area of land notified, the boundary suitability, or related measurements.
+          </p>
+          <div className="space-y-1">
+            <label htmlFor="objection-text-input" className="block text-xs font-bold text-gray-700">
+              Objection Details
+            </label>
+            <textarea
+              id="objection-text-input"
+              rows={4}
+              value={objectionText}
+              onChange={(e) => setObjectionText(e.target.value)}
+              placeholder="State the reasons for your objection in detail..."
+              className="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-amber-500 focus:border-amber-500 outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Supporting Documents (Optional)</label>
+            <div className="border border-dashed border-amber-200 rounded-lg p-3 bg-amber-50/20 text-center hover:bg-amber-50/50 transition-colors cursor-pointer relative">
+              <input 
+                type="file" 
+                className="absolute inset-0 opacity-0 cursor-pointer" 
+                onChange={() => {
+                  setObjectionFile(true);
+                  addToast("success", "Objection support document uploaded.");
+                }} 
+              />
+              <p className="text-xs text-[#B45309] font-semibold flex items-center justify-center gap-1.5">
+                <Upload size={14} /> {objectionFile ? "✓ Document uploaded" : "Upload sale deed / layout correction maps"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Citizen Grievance Modal */}
+      <Modal
+        isOpen={grievanceModalOpen}
+        onClose={() => setGrievanceModalOpen(false)}
+        title="File a Grievance"
+        size="md"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setGrievanceModalOpen(false)}
+              className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmitGrievance}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors"
+            >
+              Register Grievance
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-gray-600 leading-relaxed font-medium">
+            Register any generic grievance or issue relating to process delays, R&R facilitation, or digital system access.
+          </p>
+          <div className="space-y-1">
+            <label htmlFor="grievance-text-input" className="block text-xs font-bold text-gray-700">
+              Grievance Details
+            </label>
+            <textarea
+              id="grievance-text-input"
+              rows={4}
+              value={grievanceText}
+              onChange={(e) => setGrievanceText(e.target.value)}
+              placeholder="Describe your grievance or complaint in detail..."
+              className="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+            />
+          </div>
+        </div>
+      </Modal>
+
+      <ToastNotification toasts={toasts} onDismiss={dismissToast} />
       <Footer />
     </>
   );
