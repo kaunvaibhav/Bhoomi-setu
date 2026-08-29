@@ -53,9 +53,9 @@ This document contains the step-by-step, phase-by-phase roadmap required to full
   - [x] Implement secure PDF upload for feasibility reports, maps, and land requirements list.
   - [x] Generate unique Proposal Reference Numbers (e.g., `BS-PROP-2026-00124`).
 
-- [ ] **3.2 Stage 2: Preliminary Scrutiny**
-  - [ ] Build a checklist-based dashboard for District/State officers to check completeness and budget.
-  - [ ] Create workflow transitions: Approve -> Move to SIA; Reject -> Back to PIA with comments.
+- [x] **3.2 Stage 2: Preliminary Scrutiny**
+  - [x] Build a checklist-based dashboard for District/State officers to check completeness and budget.
+  - [x] Create workflow transitions: Approve -> Move to SIA; Reject -> Back to PIA with comments.
 
 - [ ] **3.3 Stage 3: Social Impact Assessment (SIA)**
   - [ ] Develop interactive interface for SIA agencies to upload assessment reports.

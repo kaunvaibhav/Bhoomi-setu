@@ -335,6 +335,31 @@ export const SAMPLE_PROJECTS: Project[] = [
       { id: "D020", name: "Section 11 Notification", type: "Legal", version: "v1.0", date: "18 Jan 2026", uploaderRole: "State Government", size: "1.1 MB", url: "#" },
     ],
   },
+  {
+    id: "PROJ-UP-006",
+    name: "Western Bypass Highway – Stage 2 Pilot",
+    state: "Uttar Pradesh",
+    district: "Varanasi",
+    type: "Highway",
+    requiringBody: "National Highways Authority of India",
+    landRequired: 1450,
+    landNotified: 0,
+    landAcquired: 0,
+    affectedFamilies: 820,
+    compensationAssessed: 0,
+    compensationDisbursed: 0,
+    possessionPercent: 0,
+    currentStage: 2,
+    status: "in-progress",
+    lastUpdated: "29 Aug 2026, 12:00 PM",
+    description: "Proposed bypass highway to reduce congestion around Western Varanasi. Currently undergoing preliminary scrutiny by the District Collector.",
+    parcels: [],
+    documents: [
+      { id: "D021", name: "Detailed Project Report", type: "DPR", version: "v1.0", date: "20 Aug 2026", uploaderRole: "PIA Officer", size: "12.4 MB", url: "#" },
+      { id: "D022", name: "Land Requirement Plan", type: "Map", version: "v1.0", date: "20 Aug 2026", uploaderRole: "PIA Officer", size: "3.2 MB", url: "#" },
+      { id: "D023", name: "Feasibility Report", type: "Study", version: "v1.0", date: "20 Aug 2026", uploaderRole: "PIA Officer", size: "5.7 MB", url: "#" },
+    ],
+  },
 ];
 
 // KPI Summary (illustrative)

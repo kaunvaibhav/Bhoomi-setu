@@ -1,8 +1,7 @@
 "use client";
-
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Map, Download, UserPlus, Clock, AlertTriangle, CheckCircle, FileText, MapPin } from "lucide-react";
+import { ArrowLeft, Map, Download, UserPlus, Clock, AlertTriangle, CheckSquare, Square, ThumbsUp, ThumbsDown, CheckCircle, FileText, MapPin, XCircle } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
 import StatusBadge from "@/components/StatusBadge";
 import ProcessStepper from "@/components/ProcessStepper";
@@ -13,7 +12,7 @@ import ToastNotification, { useToast } from "@/components/ToastNotification";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut } from "lucide-react";
-import { SAMPLE_PROJECTS } from "@/lib/mockData";
+import { SAMPLE_PROJECTS, type Project } from "@/lib/mockData";
 import { generateStageProgress } from "@/lib/workflowStages";
 import { formatArea, formatCurrency, calculateProgress } from "@/lib/utils";
 
@@ -24,10 +23,28 @@ interface PageProps {
 export default function ProjectDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const { user, logout } = useAuth();
-  const project = SAMPLE_PROJECTS.find((p) => p.id === id);
+  
+  const [project, setProject] = useState<Project | null>(null);
   const [activeTab, setActiveTab] = useState<"lifecycle" | "documents" | "parcels">("lifecycle");
   const [mapModalOpen, setMapModalOpen] = useState(false);
   const { toasts, addToast, dismissToast } = useToast();
+
+  // Stage 2 Scrutiny checklist & states
+  const [scrutinyChecks, setScrutinyChecks] = useState({
+    dpr: false,
+    boundaries: false,
+    budget: false,
+    records: false,
+  });
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+
+  useEffect(() => {
+    const found = SAMPLE_PROJECTS.find((p) => p.id === id);
+    if (found) {
+      setProject({ ...found });
+    }
+  }, [id]);
 
   if (!project) {
     return (
@@ -45,6 +62,46 @@ export default function ProjectDetailPage({ params }: PageProps) {
   const stageProgresses = generateStageProgress(project.currentStage, project.status);
   const acquisitionPct = calculateProgress(project.landAcquired, project.landRequired);
   const compensationPct = calculateProgress(project.compensationDisbursed, project.compensationAssessed);
+
+  const toggleCheck = (key: keyof typeof scrutinyChecks) => {
+    setScrutinyChecks(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const allChecksPassed = Object.values(scrutinyChecks).every(Boolean);
+
+  const handleApproveScrutiny = () => {
+    if (!allChecksPassed) return;
+    setProject(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        currentStage: 3, // SIA
+        status: "on-track",
+        lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
+      };
+    });
+    addToast("success", "Preliminary Scrutiny passed. Proposal promoted to Stage 3: Social Impact Assessment (SIA).");
+  };
+
+  const handleRejectScrutiny = () => {
+    if (!rejectionReason.trim()) {
+      addToast("error", "Please provide a reason for the objection.");
+      return;
+    }
+    setProject(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        currentStage: 1, // Reset to Project Proposal
+        status: "delayed",
+        lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
+        description: `${prev.description} [Rejected during Scrutiny: ${rejectionReason}]`,
+      };
+    });
+    setRejectModalOpen(false);
+    setRejectionReason("");
+    addToast("info", "Proposal sent back to Project Implementing Agency (PIA) with objections.");
+  };
 
   return (
     <ProtectedRoute>
@@ -184,35 +241,96 @@ export default function ProjectDetailPage({ params }: PageProps) {
                 <h2 className="text-sm font-semibold text-[#1F3864] mb-4">Case Lifecycle</h2>
                 <CaseTimeline stages={stageProgresses} citizenView={false} />
               </div>
-              {/* AI checkpoint callout */}
+              {/* AI checkpoint callout or Stage 2 Scrutiny */}
               <div className="space-y-4">
-                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
-                      <span className="text-white text-[10px] font-bold">AI</span>
+                {project.currentStage === 2 ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center gap-2 border-b border-blue-200/50 pb-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
+                        <FileText size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#1F3864]">Stage 2: Preliminary Scrutiny</h3>
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Collector Scrutiny Console</p>
+                      </div>
                     </div>
-                    <p className="text-sm font-semibold text-purple-800">Stage 8 — AI Valuation Check</p>
+
+                    <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                      Select and verify all submitted proposal documents to advance this project to **Stage 3 (Social Impact Assessment)**:
+                    </p>
+
+                    <div className="space-y-2 bg-white/80 p-3 rounded-lg border border-blue-100">
+                      {[
+                        { key: "dpr", label: "DPR (Detailed Project Report) submitted & verified" },
+                        { key: "boundaries", label: "Boundary coordinates & land area matching" },
+                        { key: "budget", label: "Acquisition budget clearance obtained" },
+                        { key: "records", label: "Initial ownership records verified" },
+                      ].map((item) => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => toggleCheck(item.key as any)}
+                          className="flex items-start gap-2.5 text-left w-full hover:bg-blue-50/50 p-1 rounded transition-colors"
+                        >
+                          {scrutinyChecks[item.key as keyof typeof scrutinyChecks] ? (
+                            <CheckSquare size={15} className="text-[#138808] mt-0.5 flex-shrink-0" />
+                          ) : (
+                            <Square size={15} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                          )}
+                          <span className="text-xs text-gray-700 font-medium">{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleApproveScrutiny}
+                        disabled={!allChecksPassed}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
+                          allChecksPassed ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm" : "bg-gray-300 cursor-not-allowed text-gray-500"
+                        }`}
+                      >
+                        <ThumbsUp size={13} /> Approve Stage 2
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRejectModalOpen(true)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+                      >
+                        <ThumbsDown size={13} /> Send Back
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-xs text-purple-700 leading-relaxed mb-3">
-                    The AI anomaly detection module screens all declared compensation values against comparable market transactions and circle rates before the award is finalised.
-                  </p>
-                  {project.parcels.some((p) => p.flagged) ? (
-                    <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                      <AlertTriangle size={13} className="text-red-500" />
-                      <p className="text-xs text-red-700 font-medium">
-                        {project.parcels.filter((p) => p.flagged).length} parcels flagged for manual review
-                      </p>
+                ) : (
+                  <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                        <span className="text-white text-[10px] font-bold">AI</span>
+                      </div>
+                      <p className="text-sm font-semibold text-purple-800">Stage 8 — AI Valuation Check</p>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                      <CheckCircle size={13} className="text-green-600" />
-                      <p className="text-xs text-green-700 font-medium">All parcels within expected value range</p>
-                    </div>
-                  )}
-                  <Link href="/valuation-review" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-purple-700 hover:underline">
-                    Open Valuation Review →
-                  </Link>
-                </div>
+                    <p className="text-xs text-purple-700 leading-relaxed mb-3">
+                      The AI anomaly detection module screens all declared compensation values against comparable market transactions and circle rates before the award is finalised.
+                    </p>
+                    {project.parcels.some((p) => p.flagged) ? (
+                      <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                        <AlertTriangle size={13} className="text-red-500" />
+                        <p className="text-xs text-red-700 font-medium">
+                          {project.parcels.filter((p) => p.flagged).length} parcels flagged for manual review
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                        <CheckCircle size={13} className="text-green-600" />
+                        <p className="text-xs text-green-700 font-medium">All parcels within expected value range</p>
+                      </div>
+                    )}
+                    <Link href="/valuation-review" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-purple-700 hover:underline">
+                      Open Valuation Review →
+                    </Link>
+                  </div>
+                )}
 
                 {/* Possession progress */}
                 <div className="bg-white rounded-xl border border-gray-100 shadow-card p-4">
@@ -344,6 +462,55 @@ export default function ProjectDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-1.5 text-xs"><span className="w-3 h-3 rounded-sm bg-red-500 inline-block" />Disputed</div>
             </div>
             <p className="text-[10px] text-gray-400 italic mt-2">Production: Bhuvan / DILRMP / PostGIS integration</p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Send Back Objections Modal */}
+      <Modal
+        isOpen={rejectModalOpen}
+        onClose={() => setRejectModalOpen(false)}
+        title="Send Back Proposal with Objections"
+        size="md"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setRejectModalOpen(false)}
+              className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleRejectScrutiny}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors"
+            >
+              Confirm Objections
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div className="flex gap-2.5 bg-red-50 border border-red-200 rounded-xl p-3.5 text-red-800">
+            <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-bold">Objection Action Summary</p>
+              <p className="text-[11px] text-red-700 leading-relaxed mt-0.5">
+                This proposal will be sent back to the Project Implementing Agency (PIA). The stage status will revert to Stage 1, and the requiring body will need to address the objections before resubmitting.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="rejection-note-input" className="block text-xs font-bold text-gray-700">
+              Objection / Deficiencies Note
+            </label>
+            <textarea
+              id="rejection-note-input"
+              rows={4}
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Detail the inconsistencies, missing documents, or budget issues..."
+              className="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+            />
           </div>
         </div>
       </Modal>
