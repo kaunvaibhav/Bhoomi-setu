@@ -15,6 +15,7 @@ interface SidebarItem {
   label: string;
   icon: React.ReactNode;
   badge?: number;
+  allowedRoles?: UserRole[];
 }
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
@@ -23,11 +24,11 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { href: "/dashboard/parcels", label: "Land Parcels", icon: <MapPin size={16} /> },
   { href: "/dashboard/compensation", label: "Compensation", icon: <DollarSign size={16} /> },
   { href: "/dashboard/rnr", label: "R&R Tracker", icon: <Users size={16} /> },
-  { href: "/valuation-review", label: "Valuation Review", icon: <Brain size={16} />, badge: 38 },
+  { href: "/valuation-review", label: "Valuation Review", icon: <Brain size={16} />, badge: 38, allowedRoles: ["ministry", "state"] },
   { href: "/dashboard/documents", label: "Documents", icon: <FileText size={16} /> },
-  { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 size={16} /> },
+  { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 size={16} />, allowedRoles: ["ministry", "state"] },
   { href: "/dashboard/alerts", label: "Alerts", icon: <Bell size={16} />, badge: 4 },
-  { href: "/dashboard/audit", label: "Audit Trail", icon: <ClipboardList size={16} /> },
+  { href: "/dashboard/audit", label: "Audit Trail", icon: <ClipboardList size={16} />, allowedRoles: ["ministry"] },
   { href: "/help", label: "Help", icon: <HelpCircle size={16} /> },
 ];
 
@@ -49,7 +50,7 @@ export default function DashboardSidebar({ currentRole }: DashboardSidebarProps)
       {/* Nav items */}
       <nav className="flex-1 p-3 space-y-0.5" aria-label="Sidebar">
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 py-1.5">Navigation</p>
-        {SIDEBAR_ITEMS.map((item) => {
+        {SIDEBAR_ITEMS.filter((item) => !item.allowedRoles || item.allowedRoles.includes(currentRole)).map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname?.startsWith(item.href));
           return (
             <Link
