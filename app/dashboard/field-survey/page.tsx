@@ -101,6 +101,7 @@ export default function DashboardFieldSurveyPage() {
   const { user, logout } = useAuth();
   const role: UserRole = (user?.role as UserRole) || "field";
   const roleConfig = DEMO_ROLES[role] || DEMO_ROLES.field;
+  const isCitizen = role === "citizen";
 
   const [selectedParcelId, setSelectedParcelId] = useState("UP-AGR-004821");
   const [gpsAccuracy, setGpsAccuracy] = useState(0.8);
@@ -168,6 +169,10 @@ export default function DashboardFieldSurveyPage() {
 
   const handleSubmitSurvey = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isCitizen) {
+      addToast("error", "Unauthorised Action: Only assigned Survey Officers can digitally certify boundaries.");
+      return;
+    }
     if (!exifVerified || !allPegsMarked) {
       addToast("error", "Please complete all 4 boundary markers and upload a verified geotagged photo");
       return;
@@ -279,7 +284,7 @@ export default function DashboardFieldSurveyPage() {
                       <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Survey Officer Name</label>
                       <input
                         type="text"
-                        value={user?.name || "Vikramaditya Rathore"}
+                        value={isCitizen ? "Vikramaditya Rathore (Assigned Officer)" : (user?.name || "Vikramaditya Rathore")}
                         disabled
                         className="w-full p-2.5 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 font-medium"
                       />
@@ -302,11 +307,12 @@ export default function DashboardFieldSurveyPage() {
                           key={peg.key}
                           type="button"
                           onClick={() => togglePeg(peg.key as any)}
+                          disabled={isCitizen}
                           className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
                             pegs[peg.key as keyof typeof pegs]
                               ? "bg-green-50 border-green-300 text-green-800 font-bold"
                               : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
-                          }`}
+                          } ${isCitizen ? "cursor-not-allowed opacity-60" : ""}`}
                         >
                           {pegs[peg.key as keyof typeof pegs] ? (
                             <CheckSquare size={15} className="text-[#138808]" />
@@ -330,16 +336,17 @@ export default function DashboardFieldSurveyPage() {
                       className="hidden" 
                       ref={fileInputRef} 
                       onChange={handlePhotoUpload} 
+                      disabled={isCitizen}
                     />
                     <div
-                      onClick={triggerPhotoUpload}
-                      className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all ${
+                      onClick={isCitizen ? undefined : triggerPhotoUpload}
+                      className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all ${
                         photoError 
                           ? "bg-red-50 border-red-300" 
                           : exifVerified
                             ? "bg-green-50/50 border-green-300"
-                            : "bg-gray-50 border-gray-300 hover:bg-gray-100"
-                      }`}
+                            : "bg-gray-50 border-gray-300"
+                      } ${isCitizen ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-gray-100"}`}
                     >
                       <Camera size={24} className={`mx-auto mb-1.5 ${photoError ? "text-red-500" : exifVerified ? "text-green-600" : "text-gray-400"}`} />
                       
@@ -377,15 +384,15 @@ export default function DashboardFieldSurveyPage() {
                     <button
                       type="button"
                       onClick={handleSubmitSurvey}
-                      disabled={isSubmitting || !exifVerified || !allPegsMarked}
+                      disabled={isSubmitting || (!exifVerified && !isCitizen) || (!allPegsMarked && !isCitizen) || isCitizen}
                       className={`w-full py-3 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 ${
-                        isSubmitting || !exifVerified || !allPegsMarked
+                        isSubmitting || !exifVerified || !allPegsMarked || isCitizen
                           ? 'bg-gray-400 cursor-not-allowed opacity-70'
                           : 'bg-[#138808] hover:bg-[#0E5F05]'
                       }`}
                     >
                       <Shield size={14} />
-                      {isSubmitting ? "Submitting to State Registry..." : "Digitally Certify & Complete Stage 7 Survey"}
+                      {isCitizen ? "Authorised Survey Officer Required to Certify" : isSubmitting ? "Submitting to State Registry..." : "Digitally Certify & Complete Stage 7 Survey"}
                     </button>
                   </div>
                 </div>
@@ -424,8 +431,10 @@ export default function DashboardFieldSurveyPage() {
 
                   <button
                     onClick={handleCalibrateGps}
-                    disabled={isCalibrating}
-                    className="w-full py-2 bg-[#EAF0F8] text-[#1F3864] hover:bg-[#1F3864] hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                    disabled={isCalibrating || isCitizen}
+                    className={`w-full py-2 bg-[#EAF0F8] text-[#1F3864] rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      isCalibrating || isCitizen ? "opacity-60 cursor-not-allowed" : "hover:bg-[#1F3864] hover:text-white"
+                    }`}
                   >
                     <Crosshair size={14} className={isCalibrating ? "animate-spin" : ""} />
                     {isCalibrating ? "Calibrating..." : "Calibrate Differential GNSS"}
