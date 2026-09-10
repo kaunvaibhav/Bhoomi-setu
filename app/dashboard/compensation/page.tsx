@@ -20,6 +20,7 @@ import {
   DEMO_ROLES,
 } from "@/lib/mockData";
 import { getAuthorizedCompensationRecords } from "@/app/actions/compensation";
+import { syncPfmsServerAction, exportLedgerServerAction, batchPfmsReleaseServerAction } from "@/app/actions/admin";
 import { formatCurrency } from "@/lib/utils";
 
 export default function DashboardCompensationPage() {
@@ -54,12 +55,15 @@ export default function DashboardCompensationPage() {
     fetchRecords();
   }, []);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      addToast("success", "PFMS DBT Gateway sync completed (Response: HTTP 200 OK)");
-    }, 600);
+    const result = await syncPfmsServerAction();
+    setIsRefreshing(false);
+    if (result.success) {
+      addToast("success", result.message || "PFMS Sync completed.");
+    } else {
+      addToast("error", result.error || "PFMS Sync failed.");
+    }
   };
 
   const handleDisburseSingle = (id: string) => {
@@ -89,7 +93,13 @@ export default function DashboardCompensationPage() {
     setSelectedTxn(null);
   };
 
-  const handleBatchRelease = () => {
+  const handleBatchRelease = async () => {
+    const result = await batchPfmsReleaseServerAction();
+    if (!result.success) {
+      addToast("error", result.error || "Batch release failed.");
+      return;
+    }
+    
     setTransactions((prev) =>
       prev.map((t) =>
         t.status === "approved"
@@ -108,7 +118,7 @@ export default function DashboardCompensationPage() {
       )
     );
     setBatchModalOpen(false);
-    addToast("success", "Batch PFMS-DBT payout instruction dispatched to Reserve Bank of India / PFMS switch.");
+    addToast("success", result.message || "Batch PFMS-DBT payout dispatched.");
   };
 
   const filteredTxns = transactions.filter((t) => {
@@ -172,28 +182,34 @@ export default function DashboardCompensationPage() {
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={handleRefresh}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
-                >
-                  <RefreshCw size={13} className={isRefreshing ? "animate-spin" : ""} />
-                  Sync PFMS
-                </button>
-                <button
-                  onClick={() => addToast("info", "Compensation ledger CSV exported successfully")}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
-                >
-                  <Download size={13} />
-                  Export Ledger
-                </button>
                 {role !== "citizen" && (
-                  <button
-                    onClick={() => setBatchModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 bg-[#138808] text-white rounded-xl text-xs font-semibold hover:bg-[#0E5F05] transition-colors shadow-xs"
-                  >
-                    <Send size={14} />
-                    Batch PFMS Release
-                  </button>
+                  <>
+                    <button
+                      onClick={handleRefresh}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      <RefreshCw size={13} className={isRefreshing ? "animate-spin" : ""} />
+                      Sync PFMS
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const result = await exportLedgerServerAction();
+                        if (result.success) addToast("info", result.message || "Export successful");
+                        else addToast("error", result.error || "Export failed");
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      <Download size={13} />
+                      Export Ledger
+                    </button>
+                    <button
+                      onClick={() => setBatchModalOpen(true)}
+                      className="flex items-center gap-1.5 px-3.5 py-2 bg-[#138808] text-white rounded-xl text-xs font-semibold hover:bg-[#0E5F05] transition-colors shadow-xs"
+                    >
+                      <Send size={14} />
+                      Batch PFMS Release
+                    </button>
+                  </>
                 )}
               </div>
             </div>
