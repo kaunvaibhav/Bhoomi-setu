@@ -24,7 +24,7 @@ export default function ProjectDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const { user, logout } = useAuth();
   
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<Project | null>(() => SAMPLE_PROJECTS.find((p) => p.id === id) || null);
   const [activeTab, setActiveTab] = useState<"lifecycle" | "documents" | "parcels">("lifecycle");
   const [mapModalOpen, setMapModalOpen] = useState(false);
   const { toasts, addToast, dismissToast } = useToast();
@@ -38,6 +38,32 @@ export default function ProjectDetailPage({ params }: PageProps) {
   });
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+
+  // Stage 3 SIA states
+  const [siaFileUploaded, setSiaFileUploaded] = useState(false);
+  const [siaAffected, setSiaAffected] = useState(120);
+  const [siaDisplaced, setSiaDisplaced] = useState(45);
+  const [siaAssets, setSiaAssets] = useState({
+    agri: 85,
+    res: 35,
+    comm: 10,
+  });
+
+  // Stage 4 Section 11 states
+  const [s11NotificationText, setS11NotificationText] = useState(
+    `NOTIFICATION UNDER SECTION 11(1) OF RFCTLARR ACT 2013\n\nWhereas it appears to the Government that land is required for a public purpose, namely for the connectivity corridor in district Varanasi, Uttar Pradesh...\n\nTherefore, notice is hereby given to all landowners that any land transaction in the specified area is restricted.`
+  );
+
+  // Stage 5 Objection Hearing states
+  const [hearingDate, setHearingDate] = useState("2026-09-15");
+  const [objections, setObjections] = useState([
+    { id: "OBJ-1", owner: "Ramesh C. Patel", detail: "Proposed compensation is below market rates in Ramnagar.", resolved: false },
+    { id: "OBJ-2", owner: "Savitri Devi", detail: "Requesting alignment bypass around historical well on survey plot 201.", resolved: false },
+  ]);
+
+  // Stage 6 Section 19 states
+  const [s19SignatureHash, setS19SignatureHash] = useState("");
+  const [s19Signed, setS19Signed] = useState(false);
 
   useEffect(() => {
     const found = SAMPLE_PROJECTS.find((p) => p.id === id);
@@ -63,21 +89,10 @@ export default function ProjectDetailPage({ params }: PageProps) {
   const acquisitionPct = calculateProgress(project.landAcquired, project.landRequired);
   const compensationPct = calculateProgress(project.compensationDisbursed, project.compensationAssessed);
 
-  // Stage 3 SIA states
-  const [siaFileUploaded, setSiaFileUploaded] = useState(false);
-  const [siaAffected, setSiaAffected] = useState(120);
-  const [siaDisplaced, setSiaDisplaced] = useState(45);
-  const [siaAssets, setSiaAssets] = useState({
-    agri: 85,
-    res: 35,
-    comm: 10,
-  });
-
   const handleApproveSia = () => {
     if (!siaFileUploaded || siaAffected <= 0) return;
     setProject(prev => {
       if (!prev) return null;
-      // Add the new SIA document
       const newDoc = {
         id: `D-${Date.now().toString().slice(-4)}`,
         name: "Social Impact Assessment Report (Final)",
@@ -90,7 +105,7 @@ export default function ProjectDetailPage({ params }: PageProps) {
       };
       return {
         ...prev,
-        currentStage: 4, // Section 11 Notification
+        currentStage: 4,
         affectedFamilies: siaAffected,
         status: "on-track",
         documents: [...prev.documents, newDoc],
@@ -99,11 +114,6 @@ export default function ProjectDetailPage({ params }: PageProps) {
     });
     addToast("success", "SIA report and metrics submitted. Advanced to Stage 4: Section 11 Notification.");
   };
-
-  // Stage 4 Section 11 states
-  const [s11NotificationText, setS11NotificationText] = useState(
-    `NOTIFICATION UNDER SECTION 11(1) OF RFCTLARR ACT 2013\n\nWhereas it appears to the Government that land is required for a public purpose, namely for the connectivity corridor in district Varanasi, Uttar Pradesh...\n\nTherefore, notice is hereby given to all landowners that any land transaction in the specified area is restricted.`
-  );
 
   const handleApproveS11 = () => {
     setProject(prev => {
@@ -120,7 +130,7 @@ export default function ProjectDetailPage({ params }: PageProps) {
       };
       return {
         ...prev,
-        currentStage: 5, // Objection Hearing
+        currentStage: 5,
         status: "on-track",
         documents: [...prev.documents, newDoc],
         lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
@@ -128,13 +138,6 @@ export default function ProjectDetailPage({ params }: PageProps) {
     });
     addToast("success", "Section 11 Notification approved and published. Advanced to Stage 5: Objection Hearing.");
   };
-
-  // Stage 5 Objection Hearing states
-  const [hearingDate, setHearingDate] = useState("2026-09-15");
-  const [objections, setObjections] = useState([
-    { id: "OBJ-1", owner: "Ramesh C. Patel", detail: "Proposed compensation is below market rates in Ramnagar.", resolved: false },
-    { id: "OBJ-2", owner: "Savitri Devi", detail: "Requesting alignment bypass around historical well on survey plot 201.", resolved: false },
-  ]);
 
   const toggleObjectionResolved = (objId: string) => {
     setObjections(prev => prev.map(o => o.id === objId ? { ...o, resolved: !o.resolved } : o));
@@ -156,7 +159,7 @@ export default function ProjectDetailPage({ params }: PageProps) {
       };
       return {
         ...prev,
-        currentStage: 6, // Declaration (Section 19)
+        currentStage: 6,
         status: "on-track",
         documents: [...prev.documents, newDoc],
         lastUpdated: new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true }),
@@ -164,10 +167,6 @@ export default function ProjectDetailPage({ params }: PageProps) {
     });
     addToast("success", "Objections resolved & registered. Advanced to Stage 6: Section 19 Declaration.");
   };
-
-  // Stage 6 Section 19 states
-  const [s19SignatureHash, setS19SignatureHash] = useState("");
-  const [s19Signed, setS19Signed] = useState(false);
 
   const handleSignS19 = () => {
     setS19SignatureHash(`SHA256-${Math.random().toString(36).substring(2, 10).toUpperCase()}`);
