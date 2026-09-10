@@ -83,7 +83,7 @@ export default function DashboardSidebar({ currentRole, onClose }: DashboardSide
       </nav>
 
       {/* Authenticated User Session & Logout */}
-      <div className="p-3 border-t border-gray-100 bg-slate-50/50">
+      <div className="p-3 pb-16 border-t border-gray-100 bg-slate-50/50">
         <div className="p-2.5 rounded-xl bg-white border border-gray-200 shadow-2xs">
           <div className="flex items-center gap-2 mb-1.5">
             <div

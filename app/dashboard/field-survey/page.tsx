@@ -205,26 +205,7 @@ export default function DashboardFieldSurveyPage() {
               <span className="text-sm font-semibold text-[#1F3864]">Field Survey PWA Tool</span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 bg-[#EAF0F8] px-3 py-1.5 rounded-xl border border-blue-200/60">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: roleConfig.color }}>
-                  {user?.avatarInitials || roleConfig.label[0]}
-                </div>
-                <div className="text-left">
-                  <span className="text-xs font-bold text-[#1F3864] block leading-tight">{user?.name || roleConfig.label}</span>
-                  <span className="text-[9px] text-gray-500 block leading-tight">{user?.roleTitle || roleConfig.label}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={logout}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer"
-              >
-                <LogOut size={13} />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            </div>
+            
           </div>
         </div>
 

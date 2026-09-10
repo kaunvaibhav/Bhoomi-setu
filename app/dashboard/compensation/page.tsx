@@ -13,12 +13,13 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Modal from "@/components/Modal";
 import ToastNotification, { useToast } from "@/components/ToastNotification";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 import {
-  SAMPLE_COMPENSATION_TRANSACTIONS,
   CompensationTransaction,
   UserRole,
   DEMO_ROLES,
 } from "@/lib/mockData";
+import { getAuthorizedCompensationRecords } from "@/app/actions/compensation";
 import { formatCurrency } from "@/lib/utils";
 
 export default function DashboardCompensationPage() {
@@ -26,15 +27,32 @@ export default function DashboardCompensationPage() {
   const role: UserRole = (user?.role as UserRole) || "ministry";
   const roleConfig = DEMO_ROLES[role] || DEMO_ROLES.ministry;
 
-  const [transactions, setTransactions] = useState<CompensationTransaction[]>(
-    SAMPLE_COMPENSATION_TRANSACTIONS
-  );
+  const [transactions, setTransactions] = useState<CompensationTransaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedTxn, setSelectedTxn] = useState<CompensationTransaction | null>(null);
   const [batchModalOpen, setBatchModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toasts, addToast, dismissToast } = useToast();
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        const result = await getAuthorizedCompensationRecords();
+        if (result.success && result.data) {
+          setTransactions(result.data);
+        } else {
+          addToast("error", result.error || "Failed to load compensation records");
+        }
+      } catch (err) {
+        addToast("error", "An error occurred while fetching records");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRecords();
+  }, []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -128,26 +146,7 @@ export default function DashboardCompensationPage() {
               <span className="text-sm font-semibold text-[#1F3864]">Compensation & PFMS-DBT</span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 bg-[#EAF0F8] px-3 py-1.5 rounded-xl border border-blue-200/60">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: roleConfig.color }}>
-                  {user?.avatarInitials || roleConfig.label[0]}
-                </div>
-                <div className="text-left">
-                  <span className="text-xs font-bold text-[#1F3864] block leading-tight">{user?.name || roleConfig.label}</span>
-                  <span className="text-[9px] text-gray-500 block leading-tight">{user?.roleTitle || roleConfig.label}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={logout}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer"
-              >
-                <LogOut size={13} />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            </div>
+            
           </div>
         </div>
 
@@ -187,13 +186,15 @@ export default function DashboardCompensationPage() {
                   <Download size={13} />
                   Export Ledger
                 </button>
-                <button
-                  onClick={() => setBatchModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-[#138808] text-white rounded-xl text-xs font-semibold hover:bg-[#0E5F05] transition-colors shadow-xs"
-                >
-                  <Send size={14} />
-                  Batch PFMS Release
-                </button>
+                {role !== "citizen" && (
+                  <button
+                    onClick={() => setBatchModalOpen(true)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-[#138808] text-white rounded-xl text-xs font-semibold hover:bg-[#0E5F05] transition-colors shadow-xs"
+                  >
+                    <Send size={14} />
+                    Batch PFMS Release
+                  </button>
+                )}
               </div>
             </div>
 
@@ -268,7 +269,19 @@ export default function DashboardCompensationPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filteredTxns.map((t) => (
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={8} className="p-10 text-center text-gray-500 font-medium text-sm">
+                          Loading compensation records securely...
+                        </td>
+                      </tr>
+                    ) : filteredTxns.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="p-10 text-center text-gray-500 font-medium text-sm">
+                          No compensation records found.
+                        </td>
+                      </tr>
+                    ) : filteredTxns.map((t) => (
                       <tr key={t.id} className="hover:bg-blue-50/30 transition-colors">
                         <td className="p-3.5 pl-4">
                           <span className="font-bold text-[#1F3864] block">{t.beneficiaryName}</span>
@@ -380,7 +393,7 @@ export default function DashboardCompensationPage() {
                 >
                   Close
                 </button>
-                {selectedTxn.status !== "disbursed" && (
+                {selectedTxn.status !== "disbursed" && role !== "citizen" && (
                   <button
                     onClick={() => handleDisburseSingle(selectedTxn.id)}
                     className="px-4 py-2 bg-[#138808] text-white rounded-xl font-bold hover:bg-[#0E5F05] flex items-center gap-1.5"
