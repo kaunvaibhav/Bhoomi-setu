@@ -18,13 +18,27 @@ import {
   UserRole,
   DEMO_ROLES,
 } from "@/lib/mockData";
+import { getAuthorizedDocuments } from "@/app/actions/documents";
 
 export default function DashboardDocumentsPage() {
   const { user, logout } = useAuth();
   const role: UserRole = (user?.role as UserRole) || "ministry";
   const roleConfig = DEMO_ROLES[role] || DEMO_ROLES.ministry;
 
-  const [documents, setDocuments] = useState<Document[]>(ALL_SYSTEM_DOCUMENTS);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  import { useEffect } from "react";
+  useEffect(() => {
+    async function fetchDocs() {
+      const res = await getAuthorizedDocuments();
+      if (res.success && res.data) {
+        setDocuments(res.data);
+      }
+      setIsLoading(false);
+    }
+    fetchDocs();
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
@@ -111,14 +125,14 @@ export default function DashboardDocumentsPage() {
           <main id="main-content" className="flex-1 min-w-0 p-5 space-y-5">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#1F3864] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#1F3864] flex items-center justify-center flex-shrink-0">
                     <FileText size={18} />
                   </div>
-                  <h1 className="text-xl font-bold text-[#1F3864]">Central Documents & Gazette Vault</h1>
+                  <h1 className="text-xl font-bold text-[#1F3864] break-words whitespace-normal leading-tight">Central Documents & Gazette Vault</h1>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1 break-words whitespace-normal leading-relaxed">
                   Cryptographically e-Signed statutory notifications, declarations, survey sheets & award decrees
                 </p>
               </div>
@@ -131,13 +145,15 @@ export default function DashboardDocumentsPage() {
                   <RefreshCw size={13} className={isRefreshing ? "animate-spin" : ""} />
                   Refresh
                 </button>
-                <button
-                  onClick={() => setUploadModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-[#1F3864] text-white rounded-xl text-xs font-semibold hover:bg-[#2A4A8A] transition-colors shadow-xs"
-                >
-                  <Upload size={14} />
-                  Upload Document
-                </button>
+                {role !== "citizen" && (
+                  <button
+                    onClick={() => setUploadModalOpen(true)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-[#1F3864] text-white rounded-xl text-xs font-semibold hover:bg-[#2A4A8A] transition-colors shadow-xs"
+                  >
+                    <Upload size={14} />
+                    Upload Document
+                  </button>
+                )}
               </div>
             </div>
 
@@ -220,46 +236,56 @@ export default function DashboardDocumentsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filtered.map((doc) => (
-                      <tr key={doc.id} className="hover:bg-blue-50/30 transition-colors">
-                        <td className="p-3.5 pl-4">
-                          <span className="font-bold text-[#1F3864] block text-xs">{doc.name}</span>
-                          <span className="text-[10px] text-gray-400 font-mono">{doc.id}</span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="px-2 py-0.5 bg-[#EAF0F8] text-[#1F3864] rounded-md font-semibold text-[10px]">
-                            {doc.type}
-                          </span>
-                        </td>
-                        <td className="p-3.5 font-mono text-gray-600">{doc.version}</td>
-                        <td className="p-3.5 text-gray-600">{doc.date}</td>
-                        <td className="p-3.5 font-medium text-gray-700">{doc.uploaderRole}</td>
-                        <td className="p-3.5 text-gray-500 font-mono text-[11px]">{doc.size}</td>
-                        <td className="p-3.5">
-                          <span className="inline-flex items-center gap-1 text-green-700 font-bold text-[10px]">
-                            <Shield size={12} /> e-Signed
-                          </span>
-                        </td>
-                        <td className="p-3.5 pr-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              onClick={() => setPreviewDoc(doc)}
-                              className="p-1.5 text-gray-600 hover:text-[#1F3864] hover:bg-gray-100 rounded-lg transition-colors"
-                              title="Inspect document"
-                            >
-                              <Eye size={14} />
-                            </button>
-                            <button
-                              onClick={() => handleDownload(doc.name)}
-                              className="p-1.5 text-[#1F3864] hover:bg-[#EAF0F8] rounded-lg transition-colors"
-                              title="Download signed PDF"
-                            >
-                              <Download size={14} />
-                            </button>
-                          </div>
-                        </td>
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={8} className="p-10 text-center text-gray-500">Loading documents...</td>
                       </tr>
-                    ))}
+                    ) : filtered.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="p-10 text-center text-gray-500">No documents found.</td>
+                      </tr>
+                    ) : (
+                      filtered.map((doc) => (
+                        <tr key={doc.id} className="hover:bg-blue-50/30 transition-colors">
+                          <td className="p-3.5 pl-4">
+                            <span className="font-bold text-[#1F3864] block text-xs">{doc.name}</span>
+                            <span className="text-[10px] text-gray-400 font-mono">{doc.id}</span>
+                          </td>
+                          <td className="p-3.5">
+                            <span className="px-2 py-0.5 bg-[#EAF0F8] text-[#1F3864] rounded-md font-semibold text-[10px]">
+                              {doc.type}
+                            </span>
+                          </td>
+                          <td className="p-3.5 font-mono text-gray-600">{doc.version}</td>
+                          <td className="p-3.5 text-gray-600">{doc.date}</td>
+                          <td className="p-3.5 font-medium text-gray-700">{doc.uploaderRole}</td>
+                          <td className="p-3.5 text-gray-500 font-mono text-[11px]">{doc.size}</td>
+                          <td className="p-3.5">
+                            <span className="inline-flex items-center gap-1 text-green-700 font-bold text-[10px]">
+                              <Shield size={12} /> e-Signed
+                            </span>
+                          </td>
+                          <td className="p-3.5 pr-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => setPreviewDoc(doc)}
+                                className="p-2 text-gray-600 hover:text-[#1F3864] hover:bg-gray-100 rounded-lg transition-colors"
+                                title="View Document"
+                              >
+                                <Eye size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDownload(doc.name)}
+                                className="p-2 text-[#1F3864] hover:bg-[#EAF0F8] rounded-lg transition-colors"
+                                title="Download Document"
+                              >
+                                <Download size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

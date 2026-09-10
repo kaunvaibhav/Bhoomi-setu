@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Users, Home, Briefcase, Award, CheckCircle, Clock,
   AlertTriangle, Search, Filter, Download, Plus, LogOut,
-  RefreshCw, Eye, MessageSquare,
+  RefreshCw, Eye, MessageSquare, Info
 } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
 import DashboardSidebar from "@/components/DashboardSidebar";
@@ -13,28 +13,42 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Modal from "@/components/Modal";
 import ToastNotification, { useToast } from "@/components/ToastNotification";
 import { useAuth } from "@/context/AuthContext";
-import {
-  SAMPLE_RNR_BENEFICIARIES,
-  RnrBeneficiary,
-  UserRole,
-  DEMO_ROLES,
-} from "@/lib/mockData";
+import { RnrBeneficiary, UserRole, DEMO_ROLES } from "@/lib/mockData";
 import { formatCurrency } from "@/lib/utils";
+import { getAuthorizedRnrRecords } from "@/app/actions/rnr";
 
 export default function DashboardRnrPage() {
   const { user, logout } = useAuth();
   const role: UserRole = (user?.role as UserRole) || "ministry";
   const roleConfig = DEMO_ROLES[role] || DEMO_ROLES.ministry;
+  const isCitizen = role === "citizen";
 
-  const [beneficiaries, setBeneficiaries] = useState<RnrBeneficiary[]>(
-    SAMPLE_RNR_BENEFICIARIES
-  );
+  const [beneficiaries, setBeneficiaries] = useState<RnrBeneficiary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedFamily, setSelectedFamily] = useState<RnrBeneficiary | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toasts, addToast, dismissToast } = useToast();
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        const result = await getAuthorizedRnrRecords();
+        if (result.success && result.data) {
+          setBeneficiaries(result.data);
+        } else {
+          addToast("error", result.error || "Failed to load R&R records");
+        }
+      } catch (err) {
+        addToast("error", "An error occurred while fetching records");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRecords();
+  }, []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -89,8 +103,6 @@ export default function DashboardRnrPage() {
               <span className="text-gray-300">/</span>
               <span className="text-sm font-semibold text-[#1F3864]">Rehabilitation & Resettlement</span>
             </div>
-
-            
           </div>
         </div>
 
@@ -115,180 +127,250 @@ export default function DashboardRnrPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={handleRefresh}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
-                >
-                  <RefreshCw size={13} className={isRefreshing ? "animate-spin" : ""} />
-                  Refresh
-                </button>
-                <button
-                  onClick={() => addToast("info", "R&R census report exported (PDF/Excel)")}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
-                >
-                  <Download size={13} />
-                  Export Census
-                </button>
-              </div>
+              {!isCitizen && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={handleRefresh}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    <RefreshCw size={13} className={isRefreshing ? "animate-spin" : ""} />
+                    Refresh
+                  </button>
+                  <button
+                    onClick={() => addToast("info", "R&R census report exported (PDF/Excel)")}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    <Download size={13} />
+                    Export Census
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Metrics cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Mapped Displaced Families</p>
-                <p className="text-xl font-bold text-[#1F3864] mt-1">{beneficiaries.length}</p>
-                <p className="text-[10px] text-green-600 font-semibold mt-0.5">100% SIA Census Complete</p>
+            {isLoading ? (
+              <div className="p-10 text-center text-gray-500 font-medium text-sm">
+                Loading secure R&R records...
               </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Housing Allotments</p>
-                <p className="text-xl font-bold text-[#138808] mt-1">
-                  {beneficiaries.filter((b) => b.entitlements.housingAllotment === "Allotted" || b.entitlements.housingAllotment === "Constructed").length}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-0.5">Model Resettlement Colonies</p>
-              </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Subsistence Allowance</p>
-                <p className="text-xl font-bold text-[#1F3864] mt-1">
-                  {formatCurrency(
-                    beneficiaries.reduce((acc, curr) => acc + curr.entitlements.subsistenceAmount, 0)
-                  )}
-                </p>
-                <p className="text-[10px] text-blue-600 mt-0.5">Direct Bank Transfers</p>
-              </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Open Grievances</p>
-                <p className="text-xl font-bold text-amber-600 mt-1">
-                  {beneficiaries.reduce((acc, curr) => acc + curr.grievanceCount, 0)} Active
-                </p>
-                <p className="text-[10px] text-amber-600 mt-0.5">Under Collector Hearing</p>
-              </div>
-            </div>
+            ) : isCitizen ? (
+              /* CITIZEN VIEW: Personal R&R Status or Empty State */
+              beneficiaries.length === 0 ? (
+                <div className="bg-white p-10 rounded-2xl border border-gray-200 shadow-2xs text-center space-y-3">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-400">
+                    <Info size={24} />
+                  </div>
+                  <h2 className="text-lg font-bold text-[#1F3864]">No Active R&R Record Found</h2>
+                  <p className="text-sm text-gray-500 max-w-md mx-auto">
+                    There is currently no Rehabilitation & Resettlement record registered under your profile. If you believe this is an error, please contact your local Land Acquisition Collector.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {beneficiaries.map((b) => (
+                    <div key={b.id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h2 className="text-lg font-bold text-[#1F3864]">Personal R&R Entitlement Status</h2>
+                          <p className="text-xs text-gray-500">Beneficiary ID: {b.id}</p>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
+                          b.status === "Completed" ? "bg-green-100 text-green-700" :
+                          b.status === "Grievance Pending" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+                        }`}>
+                          {b.status}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-gray-100">
+                        <div className="space-y-1">
+                          <p className="text-[10px] uppercase font-bold text-gray-400">Housing Allotment</p>
+                          <p className="font-semibold text-gray-800 text-sm">{b.entitlements.housingAllotment}</p>
+                          <p className="text-xs text-gray-500">{b.entitlements.housingPlotNumber || "N/A"}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] uppercase font-bold text-gray-400">Livelihood Option</p>
+                          <p className="font-semibold text-gray-800 text-sm">{b.entitlements.jobOrAnnuity}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] uppercase font-bold text-gray-400">Subsistence Grant</p>
+                          <p className="font-bold text-[#138808] text-sm">₹{b.entitlements.subsistenceAmount.toLocaleString("en-IN")}</p>
+                          <p className="text-xs text-gray-500">{b.entitlements.subsistenceGrant}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] uppercase font-bold text-gray-400">Resettlement Allowance</p>
+                          <p className="font-semibold text-gray-800 text-sm">{b.entitlements.resettlementAllowance}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : (
+              /* ADMIN VIEW: Metrics, Filters, and Table */
+              <>
+                {/* Metrics cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Mapped Displaced Families</p>
+                    <p className="text-xl font-bold text-[#1F3864] mt-1">{beneficiaries.length}</p>
+                    <p className="text-[10px] text-green-600 font-semibold mt-0.5">100% SIA Census Complete</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Housing Allotments</p>
+                    <p className="text-xl font-bold text-[#138808] mt-1">
+                      {beneficiaries.filter((b) => b.entitlements.housingAllotment === "Allotted" || b.entitlements.housingAllotment === "Constructed").length}
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">Model Resettlement Colonies</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Subsistence Allowance</p>
+                    <p className="text-xl font-bold text-[#1F3864] mt-1">
+                      {formatCurrency(
+                        beneficiaries.reduce((acc, curr) => acc + curr.entitlements.subsistenceAmount, 0)
+                      )}
+                    </p>
+                    <p className="text-[10px] text-blue-600 mt-0.5">Direct Bank Transfers</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Open Grievances</p>
+                    <p className="text-xl font-bold text-amber-600 mt-1">
+                      {beneficiaries.reduce((acc, curr) => acc + curr.grievanceCount, 0)} Active
+                    </p>
+                    <p className="text-[10px] text-amber-600 mt-0.5">Under Collector Hearing</p>
+                  </div>
+                </div>
 
-            {/* Filters */}
-            <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row items-center gap-3">
-              <div className="relative flex-1 w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
-                <input
-                  type="text"
-                  placeholder="Search by Family Head, R&R ID, Village, or Project..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#1F3864]"
-                />
-              </div>
+                {/* Filters */}
+                <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row items-center gap-3">
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                    <input
+                      type="text"
+                      placeholder="Search by Family Head, R&R ID, Village, or Project..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#1F3864]"
+                    />
+                  </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none"
-                >
-                  <option value="all">All Social Categories</option>
-                  <option value="SC">SC (Scheduled Caste)</option>
-                  <option value="ST">ST (Scheduled Tribe)</option>
-                  <option value="OBC">OBC</option>
-                  <option value="General">General</option>
-                </select>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <select
+                      value={filterCategory}
+                      onChange={(e) => setFilterCategory(e.target.value)}
+                      className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none"
+                    >
+                      <option value="all">All Social Categories</option>
+                      <option value="SC">SC (Scheduled Caste)</option>
+                      <option value="ST">ST (Scheduled Tribe)</option>
+                      <option value="OBC">OBC</option>
+                      <option value="General">General</option>
+                    </select>
 
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none"
-                >
-                  <option value="all">All R&R Statuses</option>
-                  <option value="Completed">Completed</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Grievance Pending">Grievance Pending</option>
-                  <option value="Verification Underway">Verification Underway</option>
-                </select>
-              </div>
-            </div>
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none"
+                    >
+                      <option value="all">All R&R Statuses</option>
+                      <option value="Completed">Completed</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Grievance Pending">Grievance Pending</option>
+                      <option value="Verification Underway">Verification Underway</option>
+                    </select>
+                  </div>
+                </div>
 
-            {/* Beneficiaries Table */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-2xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider text-[10px]">
-                      <th className="p-3.5 pl-4">Family Head & Aadhaar</th>
-                      <th className="p-3.5">Category & Status</th>
-                      <th className="p-3.5">Location & Project</th>
-                      <th className="p-3.5">Housing Allotment</th>
-                      <th className="p-3.5">Job / Cash Option</th>
-                      <th className="p-3.5">Subsistence Grant</th>
-                      <th className="p-3.5">R&R Progress</th>
-                      <th className="p-3.5 pr-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filtered.map((b) => (
-                      <tr key={b.id} className="hover:bg-blue-50/30 transition-colors">
-                        <td className="p-3.5 pl-4">
-                          <span className="font-bold text-[#1F3864] block">{b.familyHead}</span>
-                          <span className="text-[10px] text-gray-400 font-mono">{b.id} · {b.aadhaarMasked}</span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="font-semibold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded text-[10px] mr-1">
-                            {b.category}
-                          </span>
-                          <span className="text-[11px] text-gray-500">{b.displacedStatus}</span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="font-semibold text-gray-800 block">{b.village}, {b.district}</span>
-                          <span className="text-[10px] text-gray-500 truncate max-w-[140px] block">{b.project}</span>
-                        </td>
-                        <td className="p-3.5">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              b.entitlements.housingAllotment === "Allotted"
-                                ? "bg-green-100 text-green-700"
-                                : b.entitlements.housingAllotment === "In Progress"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {b.entitlements.housingAllotment}
-                          </span>
-                        </td>
-                        <td className="p-3.5 font-medium text-gray-700">
-                          {b.entitlements.jobOrAnnuity}
-                        </td>
-                        <td className="p-3.5">
-                          <span className="font-bold text-[#138808]">
-                            ₹{b.entitlements.subsistenceAmount.toLocaleString("en-IN")}
-                          </span>
-                          <span className="text-[10px] text-gray-400 block">{b.entitlements.subsistenceGrant}</span>
-                        </td>
-                        <td className="p-3.5">
-                          {b.status === "Completed" ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700">
-                              <CheckCircle size={12} /> Settled
-                            </span>
-                          ) : b.status === "Grievance Pending" ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600">
-                              <AlertTriangle size={12} /> Grievance Active
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600">
-                              <Clock size={12} /> In Progress
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-3.5 pr-4 text-right">
-                          <button
-                            onClick={() => setSelectedFamily(b)}
-                            className="px-2.5 py-1.5 bg-[#EAF0F8] text-[#1F3864] hover:bg-[#1F3864] hover:text-white rounded-lg text-xs font-semibold transition-colors"
-                          >
-                            Details
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                {/* Beneficiaries Table */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-2xs overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-max text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider text-[10px]">
+                          <th className="p-3.5 pl-4">Family Head & Aadhaar</th>
+                          <th className="p-3.5">Category & Status</th>
+                          <th className="p-3.5">Location & Project</th>
+                          <th className="p-3.5">Housing Allotment</th>
+                          <th className="p-3.5">Job / Cash Option</th>
+                          <th className="p-3.5">Subsistence Grant</th>
+                          <th className="p-3.5">R&R Progress</th>
+                          <th className="p-3.5 pr-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {filtered.length === 0 ? (
+                          <tr>
+                            <td colSpan={8} className="p-10 text-center text-gray-500 font-medium text-sm">
+                              No beneficiaries found.
+                            </td>
+                          </tr>
+                        ) : filtered.map((b) => (
+                          <tr key={b.id} className="hover:bg-blue-50/30 transition-colors">
+                            <td className="p-3.5 pl-4">
+                              <span className="font-bold text-[#1F3864] block">{b.familyHead}</span>
+                              <span className="text-[10px] text-gray-400 font-mono">{b.id} · {b.aadhaarMasked}</span>
+                            </td>
+                            <td className="p-3.5">
+                              <span className="font-semibold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded text-[10px] mr-1">
+                                {b.category}
+                              </span>
+                              <span className="text-[11px] text-gray-500">{b.displacedStatus}</span>
+                            </td>
+                            <td className="p-3.5">
+                              <span className="font-semibold text-gray-800 block">{b.village}, {b.district}</span>
+                              <span className="text-[10px] text-gray-500 block max-w-[200px] whitespace-normal leading-tight mt-0.5">{b.project}</span>
+                            </td>
+                            <td className="p-3.5">
+                              <span
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  b.entitlements.housingAllotment === "Allotted"
+                                    ? "bg-green-100 text-green-700"
+                                    : b.entitlements.housingAllotment === "In Progress"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-gray-100 text-gray-600"
+                                }`}
+                              >
+                                {b.entitlements.housingAllotment}
+                              </span>
+                            </td>
+                            <td className="p-3.5 font-medium text-gray-700">
+                              {b.entitlements.jobOrAnnuity}
+                            </td>
+                            <td className="p-3.5">
+                              <span className="font-bold text-[#138808]">
+                                ₹{b.entitlements.subsistenceAmount.toLocaleString("en-IN")}
+                              </span>
+                              <span className="text-[10px] text-gray-400 block">{b.entitlements.subsistenceGrant}</span>
+                            </td>
+                            <td className="p-3.5">
+                              {b.status === "Completed" ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700">
+                                  <CheckCircle size={12} /> Settled
+                                </span>
+                              ) : b.status === "Grievance Pending" ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600">
+                                  <AlertTriangle size={12} /> Grievance Active
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600">
+                                  <Clock size={12} /> In Progress
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3.5 pr-4 text-right">
+                              <button
+                                onClick={() => setSelectedFamily(b)}
+                                className="px-2.5 py-1.5 bg-[#EAF0F8] text-[#1F3864] hover:bg-[#1F3864] hover:text-white rounded-lg text-xs font-semibold transition-colors"
+                              >
+                                Details
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
           </main>
         </div>
 

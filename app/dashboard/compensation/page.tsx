@@ -275,7 +275,7 @@ export default function DashboardCompensationPage() {
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider text-[10px]">
                       <th className="p-3.5 pl-4">Beneficiary & Aadhaar</th>
-                      <th className="p-3.5">PFMS Txn ID</th>
+                      <th className="p-3.5 whitespace-nowrap min-w-[180px]">PFMS Txn ID</th>
                       <th className="p-3.5">Parcel & Project</th>
                       <th className="p-3.5">Assessed + Solatium</th>
                       <th className="p-3.5">Total Payable</th>
@@ -303,7 +303,7 @@ export default function DashboardCompensationPage() {
                           <span className="font-bold text-[#1F3864] block">{t.beneficiaryName}</span>
                           <span className="text-[10px] text-gray-400 font-mono">UID: {t.aadhaarMasked}</span>
                         </td>
-                        <td className="p-3.5">
+                        <td className="p-3.5 whitespace-nowrap">
                           <span className="font-mono text-gray-700 text-[11px] block">{t.pfmsTxnId}</span>
                           <span className="text-[9.5px] text-gray-400">{t.paymentMode}</span>
                         </td>

@@ -83,7 +83,7 @@ export default function DashboardSidebar({ currentRole, onClose }: DashboardSide
       </nav>
 
       {/* Authenticated User Session & Logout */}
-      <div className="p-3 pb-16 border-t border-gray-100 bg-slate-50/50">
+      <div className="p-3 pb-24 border-t border-gray-100 bg-slate-50/50 mt-auto">
         <div className="p-2.5 rounded-xl bg-white border border-gray-200 shadow-2xs">
           <div className="flex items-center gap-2 mb-1.5">
             <div
@@ -101,7 +101,10 @@ export default function DashboardSidebar({ currentRole, onClose }: DashboardSide
               </p>
             </div>
           </div>
-          <p className="text-[9.5px] text-gray-400 leading-tight mb-2.5 truncate">
+          <p 
+            className="text-[9.5px] text-gray-400 leading-tight mb-2.5 line-clamp-2 break-words"
+            title={user?.department || roleConfig.description}
+          >
             {user?.department || roleConfig.description}
           </p>
 

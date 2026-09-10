@@ -14,71 +14,27 @@ import ToastNotification, { useToast } from "@/components/ToastNotification";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole, DEMO_ROLES } from "@/lib/mockData";
 
-interface AlertItem {
-  id: string;
-  type: "danger" | "warning" | "info";
-  category: "Valuation" | "Timeline" | "Document" | "R&R";
-  title: string;
-  description: string;
-  timestamp: string;
-  link: string;
-  linkText: string;
-  isRead: boolean;
-}
-
-const INITIAL_ALERTS: AlertItem[] = [
-  {
-    id: "ALT-001",
-    type: "danger",
-    category: "Valuation",
-    title: "12 Valuation Awards Require Collector Scrutiny",
-    description: "AI Anomaly Detection scored compensation awards > 60% deviation from historical circle rates in Varanasi and Jaisalmer sectors.",
-    timestamp: "10 mins ago",
-    link: "/valuation-review",
-    linkText: "Open AI Valuation Review",
-    isRead: false,
-  },
-  {
-    id: "ALT-002",
-    type: "warning",
-    category: "Timeline",
-    title: "Possession Milestone Delay Risk — Krishna Basin Scheme",
-    description: "Stage 7 land survey is 14 days behind schedule due to pending boundary verification in 2 villages.",
-    timestamp: "1 hour ago",
-    link: "/projects/PROJ-KA-004",
-    linkText: "Inspect Project Lifecycle",
-    isRead: false,
-  },
-  {
-    id: "ALT-003",
-    type: "warning",
-    category: "Document",
-    title: "4 Section 19 Gazette Declarations Awaiting State Digital Signature",
-    description: "Objection hearing periods elapsed with zero pending objections. Requires authorized e-Sign stamp.",
-    timestamp: "3 hours ago",
-    link: "/dashboard/documents",
-    linkText: "Open Gazette Vault",
-    isRead: false,
-  },
-  {
-    id: "ALT-004",
-    type: "info",
-    category: "R&R",
-    title: "7 R&R Family Beneficiary Details Verified for DBT Release",
-    description: "Aadhaar and bank account validation confirmed by PFMS switch for Model Resettlement Colony B.",
-    timestamp: "5 hours ago",
-    link: "/dashboard/rnr",
-    linkText: "View R&R Beneficiaries",
-    isRead: true,
-  },
-];
+import { getAuthorizedAlerts, AlertItem } from "@/app/actions/alerts";
+import { useEffect } from "react";
 
 export default function DashboardAlertsPage() {
   const { user, logout } = useAuth();
   const role: UserRole = (user?.role as UserRole) || "ministry";
   const roleConfig = DEMO_ROLES[role] || DEMO_ROLES.ministry;
 
-  const [alerts, setAlerts] = useState<AlertItem[]>(INITIAL_ALERTS);
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAlerts() {
+      const res = await getAuthorizedAlerts();
+      if (res.success && res.data) {
+        setAlerts(res.data);
+      }
+      setIsLoading(false);
+    }
+    fetchAlerts();
+  }, []);
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterType, setFilterType] = useState("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -232,7 +188,18 @@ export default function DashboardAlertsPage() {
 
             {/* Alerts List */}
             <div className="space-y-3">
-              {filtered.map((item) => (
+              {isLoading ? (
+                <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center text-gray-500">
+                  Loading alerts...
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
+                  <CheckCircle2 size={36} className="mx-auto text-green-600 mb-2" />
+                  <h3 className="text-sm font-bold text-gray-800">All alerts resolved</h3>
+                  <p className="text-xs text-gray-500 mt-1">There are no pending warnings matching your selected criteria.</p>
+                </div>
+              ) : (
+                filtered.map((item) => (
                 <div
                   key={item.id}
                   className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
@@ -293,28 +260,22 @@ export default function DashboardAlertsPage() {
                     </Link>
                     <button
                       onClick={() => handleForwardAlert(item.id)}
-                      className="p-1.5 text-gray-500 hover:text-[#1F3864] hover:bg-white rounded-lg border border-transparent hover:border-gray-200 transition-colors"
-                      title="Escalate to Collector"
+                      className="p-2.5 text-gray-500 hover:text-[#1F3864] hover:bg-white rounded-lg border border-transparent hover:border-gray-200 transition-colors"
+                      title="Share Alert"
                     >
-                      <Send size={14} />
+                      <Send size={16} />
                     </button>
                     <button
                       onClick={() => handleResolveAlert(item.id)}
-                      className="p-1.5 text-green-700 hover:bg-green-100 rounded-lg transition-colors"
-                      title="Mark resolved"
+                      className="p-2.5 text-green-700 hover:bg-green-100 rounded-lg transition-colors"
+                      title="Mark as Read"
                     >
-                      <CheckCircle2 size={16} />
+                      <CheckCircle2 size={18} />
                     </button>
                   </div>
                 </div>
               ))}
 
-              {filtered.length === 0 && (
-                <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
-                  <CheckCircle2 size={36} className="mx-auto text-green-600 mb-2" />
-                  <h3 className="text-sm font-bold text-gray-800">All alerts resolved</h3>
-                  <p className="text-xs text-gray-500 mt-1">There are no pending warnings matching your selected criteria.</p>
-                </div>
               )}
             </div>
           </main>
