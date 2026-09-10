@@ -12,6 +12,7 @@ import ToastNotification, { useToast } from "@/components/ToastNotification";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut } from "lucide-react";
+import { SAMPLE_PROJECTS, type Project, type ProjectType } from "@/lib/mockData";
 
 const WORKFLOW_PREVIEW = [
   "Submission",
@@ -70,10 +71,88 @@ export default function NewProjectPage() {
     addToast("success", `${docName} uploaded successfully (prototype)`);
   }
 
+  function handleNextStep() {
+    if (step === 1) {
+      if (!form.projectTitle.trim()) {
+        addToast("error", "Please enter the Project Title.");
+        return;
+      }
+      if (!form.projectType) {
+        addToast("error", "Please select a Project Type.");
+        return;
+      }
+      if (!form.requiringBody.trim()) {
+        addToast("error", "Please enter the Requiring Body / Department.");
+        return;
+      }
+      if (!form.state) {
+        addToast("error", "Please select the State.");
+        return;
+      }
+      if (!form.district.trim()) {
+        addToast("error", "Please enter the District.");
+        return;
+      }
+      if (!form.estimatedLand.trim() || Number(form.estimatedLand) <= 0) {
+        addToast("error", "Please enter a valid Estimated Land Requirement in Hectares.");
+        return;
+      }
+    }
+    if (step === 3) {
+      const REQUIRED_DOCS = [
+        "Detailed Project Report (DPR)",
+        "Administrative Approval",
+        "Preliminary Feasibility Report",
+        "Land Requirement Statement",
+      ];
+      const missing = REQUIRED_DOCS.filter((d) => !uploadedDocs.has(d));
+      if (missing.length > 0) {
+        addToast("error", `Please upload required documents: ${missing.join(", ")}`);
+        return;
+      }
+    }
+    setStep(step + 1);
+  }
+
   async function handleSubmit() {
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setRefId("BS-PROP-2026-00124");
+    await new Promise((r) => setTimeout(r, 1200));
+    const newRefId = `BS-PROP-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+    setRefId(newRefId);
+
+    // Prepend created proposal into SAMPLE_PROJECTS mock store so it immediately reflects in the prototype
+    const newProject: Project = {
+      id: newRefId,
+      name: form.projectTitle,
+      state: form.state,
+      district: form.district,
+      type: (form.projectType as ProjectType) || "Highway",
+      requiringBody: form.requiringBody,
+      landRequired: Number(form.estimatedLand) || 500,
+      landNotified: Number(form.estimatedLand) || 500,
+      landAcquired: 0,
+      affectedFamilies: Number(form.affectedFamilies) || 120,
+      compensationAssessed: 0,
+      compensationDisbursed: 0,
+      possessionPercent: 0,
+      currentStage: 1,
+      status: "on-track",
+      lastUpdated: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+      description: form.description || "Proposal submitted for preliminary scrutiny under RFCTLARR Act.",
+      parcels: [],
+      documents: Array.from(uploadedDocs).map((docName, idx) => ({
+        id: `DOC-NEW-${idx + 1}`,
+        name: docName,
+        type: "PDF",
+        version: "1.0",
+        date: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+        uploaderRole: user?.roleTitle || "PIA Officer",
+        size: "2.1 MB",
+        url: "#",
+      })),
+    };
+    SAMPLE_PROJECTS.unshift(newProject);
+
     setSubmitting(false);
     setSubmitted(true);
   }
@@ -94,23 +173,37 @@ export default function NewProjectPage() {
               <p className="text-base font-bold font-mono text-[#1F3864]">{refId}</p>
             </div>
             <p className="text-sm text-gray-500 mb-2 leading-relaxed">
-              Your proposal has been submitted for preliminary scrutiny by the District Authority.
+              Your proposal has been submitted for preliminary scrutiny by the District Authority and registered in the national registry.
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-6 text-left">
               <p className="text-xs font-semibold text-blue-800 mb-0.5">Next Action</p>
               <p className="text-xs text-blue-700">Preliminary scrutiny by District Authority. You will be notified within 15 working days.</p>
             </div>
-            <div className="flex gap-3">
-              <Link href="/dashboard" className="flex-1 py-2.5 bg-[#1F3864] text-white rounded-xl text-sm font-semibold text-center hover:bg-[#2A4A8A] transition-colors">
-                Go to Dashboard
-              </Link>
-              <button
-                onClick={() => { setSubmitted(false); setStep(1); setForm({ projectTitle: "", projectType: "", requiringBody: "", state: "", district: "", estimatedLand: "", description: "", proposedArea: "", parcels: "", landType: "", affectedFamilies: "" }); setUploadedDocs(new Set()); }}
-                className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors"
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href={`/projects/${refId}`}
+                className="flex-1 py-2.5 bg-[#1F3864] text-white rounded-xl text-sm font-semibold text-center hover:bg-[#2A4A8A] transition-colors"
               >
-                Submit Another
-              </button>
+                View Project Record
+              </Link>
+              <Link
+                href="/dashboard"
+                className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold text-center hover:bg-gray-200 transition-colors"
+              >
+                Dashboard
+              </Link>
             </div>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setStep(1);
+                setForm({ projectTitle: "", projectType: "", requiringBody: "", state: "", district: "", estimatedLand: "", description: "", proposedArea: "", parcels: "", landType: "", affectedFamilies: "" });
+                setUploadedDocs(new Set());
+              }}
+              className="mt-3 w-full py-2 text-xs font-semibold text-gray-500 hover:text-gray-700 cursor-pointer"
+            >
+              + Submit Another Proposal
+            </button>
           </div>
         </main>
       </>
@@ -122,7 +215,7 @@ export default function NewProjectPage() {
   const LABEL = "block text-xs font-semibold text-gray-700 mb-1.5";
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["pia", "ministry"]}>
       <TopUtilityBar />
       <div className="min-h-screen bg-[#EAF0F8]">
         {/* Top bar */}
@@ -376,7 +469,7 @@ export default function NewProjectPage() {
                   </Link>
                 )}
                 {step < 4 ? (
-                  <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-5 py-2 bg-[#1F3864] text-white rounded-xl text-sm font-medium hover:bg-[#2A4A8A]">
+                  <button onClick={handleNextStep} className="flex items-center gap-2 px-5 py-2 bg-[#1F3864] text-white rounded-xl text-sm font-medium hover:bg-[#2A4A8A] cursor-pointer">
                     Continue <ArrowRight size={14} />
                   </button>
                 ) : (

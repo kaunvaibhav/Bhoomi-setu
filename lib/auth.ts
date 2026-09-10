@@ -76,7 +76,7 @@ export const PROTOTYPE_CREDENTIALS: Record<
       role: "citizen",
       roleTitle: "Citizen / Land Owner",
       department: "Registered Landholder · Section 11/19 Notified Citizen",
-      jurisdiction: "Parcel ID: UP-VAR-2026-089 (Kashi Freight Corridor)",
+      jurisdiction: "Parcel ID: UP-AGR-004821 (Eastern Freight Connectivity Corridor)",
       avatarInitials: "RP",
     },
   },

@@ -3,6 +3,8 @@ import { useState, use, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Map, Download, UserPlus, Clock, AlertTriangle, CheckSquare, Square, ThumbsUp, ThumbsDown, CheckCircle, FileText, MapPin, XCircle, Bell, Users, Shield } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
+import MainNavbar from "@/components/MainNavbar";
+import Footer from "@/components/Footer";
 import StatusBadge from "@/components/StatusBadge";
 import ProcessStepper from "@/components/ProcessStepper";
 import CaseTimeline from "@/components/CaseTimeline";
@@ -74,14 +76,34 @@ export default function ProjectDetailPage({ params }: PageProps) {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 px-4">
-        <AlertTriangle size={40} className="text-amber-500" />
-        <h1 className="text-xl font-bold text-[#1F3864]">Project not found</h1>
-        <p className="text-sm text-gray-500 text-center">We could not load this project record. Please try again or contact the support desk.</p>
-        <Link href="/dashboard" className="px-4 py-2 bg-[#1F3864] text-white rounded-xl text-sm font-medium">
-          ← Back to Dashboard
-        </Link>
-      </div>
+      <>
+        <TopUtilityBar />
+        <MainNavbar />
+        <main id="main-content" className="min-h-[70vh] bg-[#EAF0F8] flex flex-col items-center justify-center gap-4 px-4 py-12">
+          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-card text-center max-w-md w-full flex flex-col items-center gap-3">
+            <AlertTriangle size={44} className="text-amber-500" />
+            <h1 className="text-xl font-bold text-[#1F3864]">Project Not Found</h1>
+            <p className="text-sm text-gray-500 text-center">
+              No project was found matching reference ID <code className="bg-gray-100 px-2 py-0.5 rounded font-mono text-xs font-semibold">{id}</code>.
+            </p>
+            <div className="pt-2 flex flex-col sm:flex-row gap-2 w-full">
+              <Link
+                href="/dashboard/projects"
+                className="flex-1 py-2.5 px-4 bg-[#1F3864] text-white rounded-xl text-sm font-medium hover:bg-[#2A4A8A] transition-colors text-center"
+              >
+                ← View All Projects
+              </Link>
+              <Link
+                href="/dashboard"
+                className="flex-1 py-2.5 px-4 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors text-center"
+              >
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, FolderOpen, MapPin, DollarSign, Users,
   Brain, FileText, BarChart3, Bell, ClipboardList, HelpCircle,
-  ChevronRight, Shield, LogOut,
+  ChevronRight, Shield, LogOut, Compass,
 } from "lucide-react";
 import { type UserRole, DEMO_ROLES } from "@/lib/mockData";
 import { useAuth } from "@/context/AuthContext";
@@ -22,9 +22,10 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { href: "/dashboard", label: "Overview", icon: <LayoutDashboard size={16} /> },
   { href: "/dashboard/projects", label: "Projects", icon: <FolderOpen size={16} /> },
   { href: "/dashboard/parcels", label: "Land Parcels", icon: <MapPin size={16} /> },
+  { href: "/dashboard/field-survey", label: "Field Survey PWA", icon: <Compass size={16} /> },
   { href: "/dashboard/compensation", label: "Compensation", icon: <DollarSign size={16} /> },
   { href: "/dashboard/rnr", label: "R&R Tracker", icon: <Users size={16} /> },
-  { href: "/valuation-review", label: "Valuation Review", icon: <Brain size={16} />, badge: 38, allowedRoles: ["ministry", "state"] },
+  { href: "/valuation-review", label: "Valuation Review", icon: <Brain size={16} />, badge: 38, allowedRoles: ["ministry", "state", "district"] },
   { href: "/dashboard/documents", label: "Documents", icon: <FileText size={16} /> },
   { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 size={16} />, allowedRoles: ["ministry", "state"] },
   { href: "/dashboard/alerts", label: "Alerts", icon: <Bell size={16} />, badge: 4 },
@@ -35,9 +36,10 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
 interface DashboardSidebarProps {
   currentRole: UserRole;
   onRoleChange?: (role: UserRole) => void;
+  onClose?: () => void;
 }
 
-export default function DashboardSidebar({ currentRole }: DashboardSidebarProps) {
+export default function DashboardSidebar({ currentRole, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const roleConfig = DEMO_ROLES[currentRole] || DEMO_ROLES.ministry;
@@ -56,6 +58,7 @@ export default function DashboardSidebar({ currentRole }: DashboardSidebarProps)
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onClose?.()}
               className={`flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
                 isActive
                   ? "bg-[#EAF0F8] text-[#1F3864]"

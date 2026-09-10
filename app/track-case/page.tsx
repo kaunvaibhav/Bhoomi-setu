@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Search, ArrowRight, Shield, AlertCircle } from "lucide-react";
 import TopUtilityBar from "@/components/TopUtilityBar";
 import MainNavbar from "@/components/MainNavbar";
@@ -9,6 +10,7 @@ import Footer from "@/components/Footer";
 import ToastNotification, { useToast } from "@/components/ToastNotification";
 
 export default function TrackCasePage() {
+  const router = useRouter();
   const [caseId, setCaseId] = useState("");
   const [mobile, setMobile] = useState("");
   const [tab, setTab] = useState<"caseid" | "mobile">("caseid");
@@ -26,13 +28,24 @@ export default function TrackCasePage() {
 
     setTimeout(() => {
       setLoading(false);
-      const normalized = query.toUpperCase().replace(/\s/g, "");
-      if (normalized === "BS-UP-2026-004821" || normalized === "BSUP2026004821") {
-        window.location.href = "/track-case/BS-UP-2026-004821";
+      if (tab === "caseid") {
+        const normalized = query.toUpperCase().replace(/\s/g, "");
+        if (normalized === "BS-UP-2026-004821" || normalized === "BSUP2026004821") {
+          router.push("/track-case/BS-UP-2026-004821");
+        } else {
+          setNotFound(true);
+        }
       } else {
-        setNotFound(true);
+        // Mobile lookup
+        const cleanMobile = query.replace(/\D/g, "");
+        // Allow Ramesh Patel's demo mobile 9876543210 or any 10-digit number
+        if (cleanMobile === "9876543210" || (cleanMobile.length === 10 && cleanMobile.startsWith("9"))) {
+          router.push("/track-case/BS-UP-2026-004821");
+        } else {
+          setNotFound(true);
+        }
       }
-    }, 800);
+    }, 600);
   }
 
   return (
@@ -143,11 +156,21 @@ export default function TrackCasePage() {
                 <div className="mt-4 flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                   <AlertCircle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-semibold text-red-700">Case not found</p>
+                    <p className="text-sm font-semibold text-red-700">Record not found</p>
                     <p className="text-xs text-red-600 mt-0.5">
-                      No record found for the entered ID. Please check and try again.
-                      <br />
-                      <strong>Demo:</strong> Try case ID <code className="bg-red-100 px-1 rounded">BS-UP-2026-004821</code>
+                      {tab === "caseid" ? (
+                        <>
+                          No record found for the entered ID. Please check and try again.
+                          <br />
+                          <strong>Demo:</strong> Try case ID <code className="bg-red-100 px-1 rounded">BS-UP-2026-004821</code>
+                        </>
+                      ) : (
+                        <>
+                          No active record found for this mobile number in the prototype.
+                          <br />
+                          <strong>Demo:</strong> Try Ramesh Patel&apos;s registered mobile <code className="bg-red-100 px-1 rounded">9876543210</code>
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -159,14 +182,24 @@ export default function TrackCasePage() {
           <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
             <p className="text-xs text-amber-700 font-medium mb-1">Prototype Demo Hint</p>
             <p className="text-xs text-amber-600">
-              Use Case ID: <strong>BS-UP-2026-004821</strong> to view a sample land acquisition case with full lifecycle timeline and compensation status.
+              Use Case ID: <strong>BS-UP-2026-004821</strong> or Mobile: <strong>9876543210</strong> to view a sample land acquisition case with full lifecycle timeline and compensation status.
             </p>
-            <button
-              onClick={() => { setCaseId("BS-UP-2026-004821"); setTab("caseid"); }}
-              className="mt-2 text-xs font-semibold text-amber-700 underline"
-            >
-              Fill sample Case ID →
-            </button>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => { setCaseId("BS-UP-2026-004821"); setTab("caseid"); setNotFound(false); }}
+                className="text-xs font-semibold text-amber-700 underline cursor-pointer"
+              >
+                Fill sample Case ID →
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMobile("9876543210"); setTab("mobile"); setNotFound(false); }}
+                className="text-xs font-semibold text-amber-700 underline cursor-pointer"
+              >
+                Fill sample Mobile →
+              </button>
+            </div>
           </div>
 
           {/* Help section */}

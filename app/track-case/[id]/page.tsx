@@ -56,14 +56,34 @@ export default function CitizenCaseDetailPage({ params }: PageProps) {
   // Only handle the sample case in prototype
   if (id !== "BS-UP-2026-004821") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-white">
-        <AlertCircle size={40} className="text-amber-500" />
-        <h1 className="text-xl font-bold text-[#1F3864]">Case not found</h1>
-        <p className="text-sm text-gray-500 text-center">The case ID you entered was not found in this prototype.</p>
-        <Link href="/track-case" className="px-4 py-2 bg-[#1F3864] text-white rounded-xl text-sm font-medium">
-          ← Search Again
-        </Link>
-      </div>
+      <>
+        <TopUtilityBar />
+        <MainNavbar />
+        <main id="main-content" className="min-h-[70vh] flex flex-col items-center justify-center gap-4 px-4 bg-[#EAF0F8]">
+          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-card text-center max-w-md w-full flex flex-col items-center gap-3">
+            <AlertCircle size={44} className="text-amber-500" />
+            <h1 className="text-xl font-bold text-[#1F3864]">Case Not Found</h1>
+            <p className="text-sm text-gray-500">
+              The case ID <code className="bg-gray-100 px-2 py-0.5 rounded font-mono text-xs font-semibold">{id}</code> was not found in this prototype demonstration.
+            </p>
+            <div className="pt-2 flex flex-col sm:flex-row gap-2 w-full">
+              <Link
+                href="/track-case"
+                className="flex-1 py-2.5 px-4 bg-[#1F3864] text-white rounded-xl text-sm font-medium hover:bg-[#2A4A8A] transition-colors text-center"
+              >
+                ← Search Again
+              </Link>
+              <Link
+                href="/track-case/BS-UP-2026-004821"
+                className="flex-1 py-2.5 px-4 bg-amber-100 text-amber-900 rounded-xl text-sm font-medium hover:bg-amber-200 transition-colors text-center"
+              >
+                Demo Case →
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 

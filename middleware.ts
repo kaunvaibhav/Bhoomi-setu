@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/valuation-review",
-  "/projects",
+  "/projects/new",
 ];
 
 export function middleware(request: NextRequest) {
@@ -44,7 +44,8 @@ export function middleware(request: NextRequest) {
   // Role-based authorization
   if (isAuthenticated && userRole) {
     const ROLE_PROTECTIONS: Record<string, string[]> = {
-      "/valuation-review": ["ministry", "state"],
+      "/valuation-review": ["ministry", "state", "district"],
+      "/projects/new": ["pia", "ministry"],
       "/dashboard/reports": ["ministry", "state"],
       "/dashboard/audit": ["ministry"],
     };
@@ -68,7 +69,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/valuation-review/:path*",
-    "/projects/:path*",
+    "/projects/new",
     "/login",
   ],
 };

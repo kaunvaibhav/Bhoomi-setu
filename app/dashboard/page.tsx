@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   RefreshCw, Download, Filter, Bell, Search, ChevronDown,
   AlertTriangle, TrendingUp, BarChart3, MapPin, Brain, User, LogOut,
+  Menu, X,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -29,6 +30,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "map" | "charts">("overview");
   const [selectedState, setSelectedState] = useState<string | undefined>(undefined);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { toasts, addToast, dismissToast } = useToast();
 
   const roleConfig = DEMO_ROLES[role];
@@ -122,9 +124,17 @@ export default function DashboardPage() {
         <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
           <div className="px-4 h-14 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(true)}
+                className="p-1.5 rounded-lg text-gray-600 hover:bg-gray-100 lg:hidden cursor-pointer"
+                aria-label="Open navigation menu"
+              >
+                <Menu size={20} />
+              </button>
               <Link href="/" className="text-[#1F3864] font-bold text-lg">BhoomiSetu</Link>
               <span className="text-gray-300">/</span>
-              <span className="text-sm font-medium text-gray-600">{dashTitle[role]}</span>
+              <span className="text-sm font-medium text-gray-600 truncate max-w-[160px] sm:max-w-none">{dashTitle[role]}</span>
             </div>
             <div className="flex items-center gap-2">
               {/* Search */}
@@ -161,6 +171,33 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileSidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            <div
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+              onClick={() => setMobileSidebarOpen(false)}
+              aria-hidden="true"
+            />
+            <div className="relative w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
+              <div className="p-3 border-b border-gray-200 flex items-center justify-between">
+                <span className="font-bold text-sm text-[#1F3864]">Dashboard Navigation</span>
+                <button
+                  type="button"
+                  onClick={() => setMobileSidebarOpen(false)}
+                  className="p-1 rounded-md text-gray-500 hover:bg-gray-100 cursor-pointer"
+                  aria-label="Close navigation"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <DashboardSidebar currentRole={role} onClose={() => setMobileSidebarOpen(false)} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Layout */}
         <div className="flex">
@@ -218,7 +255,7 @@ export default function DashboardPage() {
                         Welcome, Ramesh Chandra Patel (Registered Citizen & Landholder)
                       </h2>
                       <p className="text-xs text-gray-500">
-                        Active Case ID: <span className="font-mono font-bold text-[#1F3864]">BS-UP-2026-004821</span> · Delhi–Varanasi Freight Corridor
+                        Active Case ID: <span className="font-mono font-bold text-[#1F3864]">BS-UP-2026-004821</span> · Eastern Freight Connectivity Corridor
                       </p>
                     </div>
                   </div>
@@ -232,21 +269,21 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-green-100 text-xs">
                   <div>
                     <span className="text-gray-400 block text-[10px]">Parcel ID</span>
-                    <span className="font-semibold text-gray-800">UP-VAR-2026-089</span>
+                    <span className="font-semibold text-gray-800">UP-AGR-004821</span>
                   </div>
                   <div>
                     <span className="text-gray-400 block text-[10px]">Land Area Notified</span>
                     <span className="font-semibold text-gray-800">0.85 Hectares</span>
                   </div>
                   <div>
-                    <span className="text-gray-400 block text-[10px]">Compensation Disbursed</span>
-                    <span className="font-bold text-[#138808]">₹42,50,000 (100% PFMS)</span>
+                    <span className="text-gray-400 block text-[10px]">Compensation Assessed</span>
+                    <span className="font-bold text-[#1F3864]">₹42,00,000 (Award Declared)</span>
                   </div>
                   <div>
                     <span className="text-gray-400 block text-[10px]">Status</span>
-                    <span className="inline-flex items-center gap-1 font-semibold text-blue-700">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                      Possession Recorded
+                    <span className="inline-flex items-center gap-1 font-semibold text-amber-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      Stage 8 · Award Review
                     </span>
                   </div>
                 </div>

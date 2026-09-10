@@ -144,13 +144,37 @@ export default function MainNavbar() {
             >
               <Search size={14} /> Track My Case
             </Link>
-            <Link
-              href="/login"
-              className="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium bg-[#1F3864] text-white"
-              onClick={() => setMobileOpen(false)}
-            >
-              <LayoutDashboard size={14} /> Login
-            </Link>
+            {isAuthenticated && user ? (
+              <div className="flex flex-col gap-2">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center justify-between px-3 py-2 rounded text-sm font-medium bg-[#1F3864] text-white"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span className="flex items-center gap-2">
+                    <LayoutDashboard size={14} /> Dashboard ({user.roleTitle})
+                  </span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    setMobileOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-2 px-3 py-2 rounded text-sm font-medium text-red-700 bg-red-50 border border-red-200 cursor-pointer"
+                >
+                  <LogOut size={14} /> Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium bg-[#1F3864] text-white"
+                onClick={() => setMobileOpen(false)}
+              >
+                <LayoutDashboard size={14} /> Login
+              </Link>
+            )}
           </div>
         </div>
       )}
