@@ -390,31 +390,37 @@ function ComponentsSection() {
       icon: <Cpu size={22} />,
       title: "Workflow Engine",
       desc: "Automates case routing through all 12 acquisition stages with role-based task queues, deadlines, and escalation triggers.",
+      href: "/dashboard/projects",
     },
     {
       icon: <Map size={22} />,
       title: "GIS & Mapping Module",
       desc: "Integrates with Bhuvan and DILRMP to display geo-tagged parcels, project corridors, and acquisition boundaries.",
+      href: "/dashboard/parcels",
     },
     {
       icon: <Brain size={22} />,
       title: "AI Valuation Module",
       desc: "Screens declared compensation values against comparable transactions and circle rates to flag anomalies for officer review.",
+      href: "/valuation-review",
     },
     {
       icon: <Database size={22} />,
       title: "Secure Document Repository",
       desc: "Stores SIA reports, notifications, award statements, and R&R plans with version control and role-based access.",
+      href: "/dashboard/documents",
     },
     {
       icon: <Bell size={22} />,
       title: "Alerts & Notification Engine",
       desc: "Sends real-time notifications for pending actions, milestone delays, and document approvals via portal, SMS, and email.",
+      href: "/dashboard/alerts",
     },
     {
       icon: <BarChart3 size={22} />,
       title: "Analytics & MIS Reports",
       desc: "Generates stage-wise progress reports, cross-state comparison views, and structured exports for policy oversight.",
+      href: "/dashboard/reports",
     },
   ];
 
@@ -441,20 +447,25 @@ function ComponentsSection() {
           {components.map((c, i) => (
             <motion.div
               key={c.title}
-              className="bg-white rounded-xl border border-gray-100 p-5 shadow-card card-hover group transition-all duration-300 hover:translate-y-1 hover:shadow-lg"
+              className="bg-white rounded-xl border border-gray-100 p-5 shadow-card card-hover group transition-all duration-300 hover:translate-y-1 hover:shadow-lg flex flex-col justify-between"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.08 }}
             >
-              <div className="w-12 h-12 rounded-xl bg-[#EAF0F8] flex items-center justify-center mb-4 text-[#1F3864] group-hover:bg-[#1F3864] group-hover:text-white transition-colors">
-                {c.icon}
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#EAF0F8] flex items-center justify-center mb-4 text-[#1F3864] group-hover:bg-[#1F3864] group-hover:text-white transition-colors">
+                  {c.icon}
+                </div>
+                <h3 className="text-sm font-bold text-[#1F3864] mb-2">{c.title}</h3>
+                <p className="text-xs text-gray-500 leading-relaxed mb-3">{c.desc}</p>
               </div>
-              <h3 className="text-sm font-bold text-[#1F3864] mb-2">{c.title}</h3>
-              <p className="text-xs text-gray-500 leading-relaxed mb-3">{c.desc}</p>
-              <button className="text-[11px] font-semibold text-[#1F3864] hover:underline flex items-center gap-1">
-                Learn more <ChevronRight size={12} />
-              </button>
+              <Link
+                href={c.href}
+                className="text-[11px] font-semibold text-[#1F3864] hover:underline flex items-center gap-1 mt-2 group-hover:text-blue-700"
+              >
+                Access Module <ChevronRight size={12} />
+              </Link>
             </motion.div>
           ))}
         </div>

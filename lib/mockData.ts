@@ -554,3 +554,372 @@ export const DEMO_ROLES: Record<UserRole, { label: string; description: string; 
   field: { label: "Field Officer", description: "Land Acquisition Unit, Varanasi", color: "#92400E" },
   citizen: { label: "Citizen / Land Owner", description: "Case ID: BS-UP-2026-004821", color: "#1F3864" },
 };
+
+export interface CompensationTransaction {
+  id: string;
+  pfmsTxnId: string;
+  project: string;
+  projectId: string;
+  beneficiaryName: string;
+  aadhaarMasked: string;
+  bankAccountMasked: string;
+  ifscCode: string;
+  parcelId: string;
+  areaHa: number;
+  assessedAmount: number;
+  solatiumAmount: number;
+  interestAmount: number;
+  totalPayable: number;
+  disbursedAmount: number;
+  paymentMode: "PFMS-DBT" | "Direct Treasury" | "Escrow Deposit";
+  status: "disbursed" | "approved" | "pending-review" | "bank-processing" | "on-hold";
+  disbursedDate?: string;
+  pfmsResponseCode?: string;
+}
+
+export const SAMPLE_COMPENSATION_TRANSACTIONS: CompensationTransaction[] = [
+  {
+    id: "CMP-UP-2026-001",
+    pfmsTxnId: "PFMS-2026-UP0984129",
+    project: "Eastern Freight Connectivity Corridor",
+    projectId: "PROJ-UP-001",
+    beneficiaryName: "Ramesh Chandra Patel",
+    aadhaarMasked: "XXXX-XXXX-4821",
+    bankAccountMasked: "SBI-XXXXXX9821",
+    ifscCode: "SBIN0001248",
+    parcelId: "UP-AGR-004821",
+    areaHa: 0.482,
+    assessedAmount: 3100000,
+    solatiumAmount: 3100000,
+    interestAmount: 372000,
+    totalPayable: 6572000,
+    disbursedAmount: 6572000,
+    paymentMode: "PFMS-DBT",
+    status: "disbursed",
+    disbursedDate: "24 Aug 2026",
+    pfmsResponseCode: "SUCCESS_00",
+  },
+  {
+    id: "CMP-UP-2026-002",
+    pfmsTxnId: "PFMS-2026-UP0984130",
+    project: "Eastern Freight Connectivity Corridor",
+    projectId: "PROJ-UP-001",
+    beneficiaryName: "Sunita Devi Sharma",
+    aadhaarMasked: "XXXX-XXXX-9142",
+    bankAccountMasked: "PNB-XXXXXX3312",
+    ifscCode: "PUNB0124900",
+    parcelId: "UP-AGR-004822",
+    areaHa: 0.320,
+    assessedAmount: 2800000,
+    solatiumAmount: 2800000,
+    interestAmount: 224000,
+    totalPayable: 5824000,
+    disbursedAmount: 5824000,
+    paymentMode: "PFMS-DBT",
+    status: "disbursed",
+    disbursedDate: "26 Aug 2026",
+    pfmsResponseCode: "SUCCESS_00",
+  },
+  {
+    id: "CMP-RJ-2026-003",
+    pfmsTxnId: "PFMS-2026-RJ4419201",
+    project: "Renewable Energy Transmission Corridor",
+    projectId: "PROJ-RJ-002",
+    beneficiaryName: "Priya Mohan Rathore",
+    aadhaarMasked: "XXXX-XXXX-1903",
+    bankAccountMasked: "BOB-XXXXXX7714",
+    ifscCode: "BARB0JAISAL",
+    parcelId: "RJ-ARD-002187",
+    areaHa: 1.240,
+    assessedAmount: 480000,
+    solatiumAmount: 480000,
+    interestAmount: 57600,
+    totalPayable: 1017600,
+    disbursedAmount: 0,
+    paymentMode: "PFMS-DBT",
+    status: "pending-review",
+  },
+  {
+    id: "CMP-MH-2026-004",
+    pfmsTxnId: "PFMS-2026-MH7712491",
+    project: "Regional Railway Expansion – Pune Node",
+    projectId: "PROJ-MH-003",
+    beneficiaryName: "Kavita S. Kulkarni",
+    aadhaarMasked: "XXXX-XXXX-6612",
+    bankAccountMasked: "HDFC-XXXXXX4481",
+    ifscCode: "HDFC0000120",
+    parcelId: "MH-URB-006902",
+    areaHa: 0.280,
+    assessedAmount: 8400000,
+    solatiumAmount: 8400000,
+    interestAmount: 1008000,
+    totalPayable: 17808000,
+    disbursedAmount: 17808000,
+    paymentMode: "PFMS-DBT",
+    status: "disbursed",
+    disbursedDate: "18 Aug 2026",
+    pfmsResponseCode: "SUCCESS_00",
+  },
+  {
+    id: "CMP-KA-2026-005",
+    pfmsTxnId: "PFMS-2026-KA1093812",
+    project: "Irrigation Modernisation Scheme – Krishna Basin",
+    projectId: "PROJ-KA-004",
+    beneficiaryName: "Basavaraj G. Patil",
+    aadhaarMasked: "XXXX-XXXX-8823",
+    bankAccountMasked: "CANARA-XXXXXX5521",
+    ifscCode: "CNRB0001004",
+    parcelId: "KA-AGR-011204",
+    areaHa: 0.950,
+    assessedAmount: 2200000,
+    solatiumAmount: 2200000,
+    interestAmount: 176000,
+    totalPayable: 4576000,
+    disbursedAmount: 0,
+    paymentMode: "PFMS-DBT",
+    status: "approved",
+  },
+  {
+    id: "CMP-MP-2026-006",
+    pfmsTxnId: "PFMS-2026-MP5510293",
+    project: "Industrial Logistics Park – Bhopal Corridor",
+    projectId: "PROJ-MP-005",
+    beneficiaryName: "Anil Kumar Yadav",
+    aadhaarMasked: "XXXX-XXXX-7719",
+    bankAccountMasked: "UNION-XXXXXX2209",
+    ifscCode: "UBIN0530123",
+    parcelId: "MP-IND-008841",
+    areaHa: 1.120,
+    assessedAmount: 9800000,
+    solatiumAmount: 9800000,
+    interestAmount: 784000,
+    totalPayable: 20384000,
+    disbursedAmount: 0,
+    paymentMode: "PFMS-DBT",
+    status: "bank-processing",
+  },
+];
+
+export interface RnrBeneficiary {
+  id: string;
+  familyHead: string;
+  aadhaarMasked: string;
+  project: string;
+  state: string;
+  district: string;
+  village: string;
+  category: "SC" | "ST" | "OBC" | "General";
+  displacedStatus: "Physically Displaced" | "Economically Affected";
+  entitlements: {
+    housingAllotment: "Allotted" | "Constructed" | "In Progress" | "Not Opted";
+    housingPlotNumber?: string;
+    subsistenceGrant: "Disbursed" | "Scheduled" | "Pending";
+    subsistenceAmount: number;
+    jobOrAnnuity: "Job Guarantee" | "One-Time Cash Option" | "Monthly Annuity";
+    resettlementAllowance: "Disbursed" | "Pending";
+  };
+  grievanceCount: number;
+  status: "Completed" | "In Progress" | "Grievance Pending" | "Verification Underway";
+}
+
+export const SAMPLE_RNR_BENEFICIARIES: RnrBeneficiary[] = [
+  {
+    id: "RNR-UP-0012",
+    familyHead: "Ram Lal Maurya",
+    aadhaarMasked: "XXXX-XXXX-3829",
+    project: "Eastern Freight Connectivity Corridor",
+    state: "Uttar Pradesh",
+    district: "Varanasi",
+    village: "Rampur Khas",
+    category: "OBC",
+    displacedStatus: "Physically Displaced",
+    entitlements: {
+      housingAllotment: "Allotted",
+      housingPlotNumber: "Plot #42, Model Resettlement Colony B",
+      subsistenceGrant: "Disbursed",
+      subsistenceAmount: 36000,
+      jobOrAnnuity: "Job Guarantee",
+      resettlementAllowance: "Disbursed",
+    },
+    grievanceCount: 0,
+    status: "Completed",
+  },
+  {
+    id: "RNR-UP-0013",
+    familyHead: "Santosh Bind",
+    aadhaarMasked: "XXXX-XXXX-9912",
+    project: "Eastern Freight Connectivity Corridor",
+    state: "Uttar Pradesh",
+    district: "Varanasi",
+    village: "Rampur Khas",
+    category: "ST",
+    displacedStatus: "Physically Displaced",
+    entitlements: {
+      housingAllotment: "In Progress",
+      housingPlotNumber: "Plot #44, Model Resettlement Colony B",
+      subsistenceGrant: "Disbursed",
+      subsistenceAmount: 50000,
+      jobOrAnnuity: "One-Time Cash Option",
+      resettlementAllowance: "Pending",
+    },
+    grievanceCount: 1,
+    status: "Grievance Pending",
+  },
+  {
+    id: "RNR-MH-0044",
+    familyHead: "Ganesh D. Shinde",
+    aadhaarMasked: "XXXX-XXXX-7721",
+    project: "Regional Railway Expansion – Pune Node",
+    state: "Maharashtra",
+    district: "Pune",
+    village: "Hadapsar",
+    category: "General",
+    displacedStatus: "Economically Affected",
+    entitlements: {
+      housingAllotment: "Not Opted",
+      subsistenceGrant: "Disbursed",
+      subsistenceAmount: 36000,
+      jobOrAnnuity: "Monthly Annuity",
+      resettlementAllowance: "Disbursed",
+    },
+    grievanceCount: 0,
+    status: "Completed",
+  },
+  {
+    id: "RNR-KA-0081",
+    familyHead: "Hanumantha Nayak",
+    aadhaarMasked: "XXXX-XXXX-5521",
+    project: "Irrigation Modernisation Scheme – Krishna Basin",
+    state: "Karnataka",
+    district: "Raichur",
+    village: "Kurdi",
+    category: "ST",
+    displacedStatus: "Physically Displaced",
+    entitlements: {
+      housingAllotment: "In Progress",
+      housingPlotNumber: "Plot #18, Krishna R&R Layout",
+      subsistenceGrant: "Scheduled",
+      subsistenceAmount: 50000,
+      jobOrAnnuity: "Job Guarantee",
+      resettlementAllowance: "Pending",
+    },
+    grievanceCount: 0,
+    status: "In Progress",
+  },
+  {
+    id: "RNR-RJ-0039",
+    familyHead: "Kailash Dan Charan",
+    aadhaarMasked: "XXXX-XXXX-1144",
+    project: "Renewable Energy Transmission Corridor",
+    state: "Rajasthan",
+    district: "Jaisalmer",
+    village: "Khuri",
+    category: "OBC",
+    displacedStatus: "Economically Affected",
+    entitlements: {
+      housingAllotment: "Not Opted",
+      subsistenceGrant: "Scheduled",
+      subsistenceAmount: 36000,
+      jobOrAnnuity: "One-Time Cash Option",
+      resettlementAllowance: "Pending",
+    },
+    grievanceCount: 0,
+    status: "Verification Underway",
+  },
+];
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  officerName: string;
+  officerRole: string;
+  department: string;
+  ipHash: string;
+  actionCategory: "Security" | "Valuation" | "Workflow Transition" | "Document Upload" | "Compensation";
+  actionTitle: string;
+  actionDetails: string;
+  signatureHash: string;
+  status: "verified" | "flagged";
+}
+
+export const SAMPLE_AUDIT_LOGS: AuditLogEntry[] = [
+  {
+    id: "AUD-2026-89101",
+    timestamp: "28 Aug 2026, 09:15 AM",
+    officerName: "Rajeev Singhal, IAS",
+    officerRole: "District Collector",
+    department: "District Land Acquisition Cell, Varanasi",
+    ipHash: "103.24.188.XX (NIC-GoI Gateway)",
+    actionCategory: "Workflow Transition",
+    actionTitle: "Section 19 Declaration Approved",
+    actionDetails: "Promoted Eastern Freight Corridor project to Stage 7 (Survey & Measurement) following zero unresolved objections.",
+    signatureHash: "SHA256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+    status: "verified",
+  },
+  {
+    id: "AUD-2026-89102",
+    timestamp: "28 Aug 2026, 08:30 AM",
+    officerName: "Dr. Sunita Rao, AI Specialist",
+    officerRole: "Ministry Analyst",
+    department: "Department of Land Resources (DoLR), New Delhi",
+    ipHash: "164.100.12.XX (NIC National Cloud)",
+    actionCategory: "Valuation",
+    actionTitle: "Valuation Anomaly Flag Review",
+    actionDetails: "Reviewed AI anomaly flag score 62 on parcel UP-AGR-004821 and requested circle rate re-verification from Sub-Registrar.",
+    signatureHash: "SHA256:4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+    status: "verified",
+  },
+  {
+    id: "AUD-2026-89103",
+    timestamp: "27 Aug 2026, 04:12 PM",
+    officerName: "Manoj Kumar Verma",
+    officerRole: "Land Acquisition Officer",
+    department: "DoLR Field Office, Varanasi",
+    ipHash: "103.24.188.XX (NIC-GoI Gateway)",
+    actionCategory: "Compensation",
+    actionTitle: "PFMS Direct Benefit Transfer Released",
+    actionDetails: "Disbursed ₹65,72,000 via PFMS-DBT to Ramesh Chandra Patel for parcel UP-AGR-004821.",
+    signatureHash: "SHA256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+    status: "verified",
+  },
+  {
+    id: "AUD-2026-89104",
+    timestamp: "27 Aug 2026, 02:45 PM",
+    officerName: "Vikramaditya Rathore",
+    officerRole: "Field Officer",
+    department: "NHAI Survey Unit, Jaisalmer",
+    ipHash: "117.218.44.XX (Field Survey PWA)",
+    actionCategory: "Document Upload",
+    actionTitle: "Geotagged Survey Photos Uploaded",
+    actionDetails: "Uploaded 8 geotagged survey plots for parcel RJ-ARD-002187 with GPS coordinates matching ULPIN spatial boundary.",
+    signatureHash: "SHA256:8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    status: "verified",
+  },
+  {
+    id: "AUD-2026-89105",
+    timestamp: "26 Aug 2026, 11:20 AM",
+    officerName: "Pradeep Joshi",
+    officerRole: "PIA Officer",
+    department: "National Highways Authority of India (NHAI)",
+    ipHash: "14.139.112.XX (NHAI Corporate VPN)",
+    actionCategory: "Workflow Transition",
+    actionTitle: "New Project Proposal Submitted",
+    actionDetails: "Registered proposal BS-PROP-2026-00124 (Western Bypass Highway – Stage 2 Pilot) with DPR and spatial KML boundary files.",
+    signatureHash: "SHA256:ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+    status: "verified",
+  },
+];
+
+export const ALL_SYSTEM_DOCUMENTS: Document[] = [
+  { id: "DOC-001", name: "Social Impact Assessment Report - Eastern Corridor", type: "SIA", version: "v2.1", date: "12 Jan 2026", uploaderRole: "SIA Agency", size: "4.2 MB", url: "#" },
+  { id: "DOC-002", name: "Gazette Notification Under Section 11(1) - UP", type: "Section 11", version: "v1.0", date: "03 Feb 2026", uploaderRole: "State Government", size: "1.1 MB", url: "#" },
+  { id: "DOC-003", name: "Objection Register and Collector Hearing Record", type: "Objections", version: "v1.2", date: "15 Mar 2026", uploaderRole: "District Collector", size: "2.8 MB", url: "#" },
+  { id: "DOC-004", name: "Geospatial Boundary Survey and Measurement Log", type: "GIS Survey", version: "v1.0", date: "20 Apr 2026", uploaderRole: "Field Officer", size: "8.4 MB", url: "#" },
+  { id: "DOC-005", name: "Section 19 Final Gazette Declaration", type: "Section 19", version: "v1.0", date: "10 Jun 2026", uploaderRole: "State Government", size: "1.8 MB", url: "#" },
+  { id: "DOC-006", name: "Final Award Statement and Solatium Calculation", type: "Award Statement", version: "v1.0", date: "10 Jul 2026", uploaderRole: "Land Acquisition Officer", size: "3.1 MB", url: "#" },
+  { id: "DOC-007", name: "Rehabilitation and Resettlement (R&R) Scheme Plan", type: "R&R Scheme", version: "v1.1", date: "15 Jul 2026", uploaderRole: "District Collector", size: "4.6 MB", url: "#" },
+  { id: "DOC-008", name: "Physical Possession Certificate (Stage 10)", type: "Possession Certificate", version: "v1.0", date: "18 Aug 2026", uploaderRole: "District Collector", size: "1.4 MB", url: "#" },
+  { id: "DOC-009", name: "DPR & Land Requirement Matrix - Western Bypass", type: "DPR", version: "v1.0", date: "20 Aug 2026", uploaderRole: "PIA Officer", size: "14.2 MB", url: "#" },
+  { id: "DOC-010", name: "Solar Park Transmission Corridor - Feasibility Study", type: "Feasibility", version: "v2.0", date: "22 Aug 2026", uploaderRole: "PIA Officer", size: "9.8 MB", url: "#" },
+];
+

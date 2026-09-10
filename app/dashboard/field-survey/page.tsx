@@ -1,0 +1,298 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import {
+  Compass, MapPin, Camera, CheckCircle, AlertTriangle,
+  Upload, Shield, RefreshCw, LogOut, ArrowLeft,
+  Navigation, Crosshair, CheckSquare, Square,
+} from "lucide-react";
+import TopUtilityBar from "@/components/TopUtilityBar";
+import DashboardSidebar from "@/components/DashboardSidebar";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import ToastNotification, { useToast } from "@/components/ToastNotification";
+import { useAuth } from "@/context/AuthContext";
+import { SAMPLE_PROJECTS, UserRole, DEMO_ROLES } from "@/lib/mockData";
+
+export default function DashboardFieldSurveyPage() {
+  const { user, logout } = useAuth();
+  const role: UserRole = (user?.role as UserRole) || "field";
+  const roleConfig = DEMO_ROLES[role] || DEMO_ROLES.field;
+
+  const [selectedParcelId, setSelectedParcelId] = useState("UP-AGR-004821");
+  const [gpsAccuracy, setGpsAccuracy] = useState(0.8);
+  const [isCalibrating, setIsCalibrating] = useState(false);
+  const [photoUploaded, setPhotoUploaded] = useState(false);
+  const [exifVerified, setExifVerified] = useState(false);
+  const [pegs, setPegs] = useState({
+    ne: true,
+    se: true,
+    sw: false,
+    nw: false,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toasts, addToast, dismissToast } = useToast();
+
+  const handleCalibrateGps = () => {
+    setIsCalibrating(true);
+    setTimeout(() => {
+      setIsCalibrating(false);
+      setGpsAccuracy(0.4);
+      addToast("success", "RTK Differential GPS locked: High Precision (±0.4m)");
+    }, 700);
+  };
+
+  const handlePhotoUpload = () => {
+    setPhotoUploaded(true);
+    setTimeout(() => {
+      setExifVerified(true);
+      addToast("success", "Geotagged Survey Photo EXIF matched parcel boundary (Lat: 25.3176, Lon: 82.9739)");
+    }, 500);
+  };
+
+  const togglePeg = (key: keyof typeof pegs) => {
+    setPegs((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const allPegsMarked = Object.values(pegs).every(Boolean);
+
+  const handleSubmitSurvey = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!photoUploaded || !allPegsMarked) {
+      addToast("error", "Please complete all 4 boundary markers and upload geotagged photo");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      addToast(
+        "success",
+        `Field Survey for Parcel ${selectedParcelId} submitted and digitally certified (Stage 7 complete).`
+      );
+    }, 800);
+  };
+
+  return (
+    <ProtectedRoute>
+      <TopUtilityBar />
+      <ToastNotification toasts={toasts} onDismiss={dismissToast} />
+
+      <div className="min-h-screen bg-[#F8FAFC]">
+        {/* Top bar */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+          <div className="px-4 h-14 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="text-[#1F3864] font-bold text-lg">BhoomiSetu</Link>
+              <span className="text-gray-300">/</span>
+              <Link href="/dashboard" className="text-sm font-medium text-gray-600 hover:text-[#1F3864]">Dashboard</Link>
+              <span className="text-gray-300">/</span>
+              <span className="text-sm font-semibold text-[#1F3864]">Field Survey PWA Tool</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2 bg-[#EAF0F8] px-3 py-1.5 rounded-xl border border-blue-200/60">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: roleConfig.color }}>
+                  {user?.avatarInitials || roleConfig.label[0]}
+                </div>
+                <div className="text-left">
+                  <span className="text-xs font-bold text-[#1F3864] block leading-tight">{user?.name || roleConfig.label}</span>
+                  <span className="text-[9px] text-gray-500 block leading-tight">{user?.roleTitle || roleConfig.label}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer"
+              >
+                <LogOut size={13} />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Layout */}
+        <div className="flex">
+          <div className="hidden lg:block">
+            <DashboardSidebar currentRole={role} />
+          </div>
+
+          <main id="main-content" className="flex-1 min-w-0 p-5 space-y-5">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center">
+                    <Compass size={18} />
+                  </div>
+                  <h1 className="text-xl font-bold text-[#1F3864]">Stage 7: Field Survey & Ground Verification</h1>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  High-accuracy GNSS/RTK spatial ground boundary measurement & geotagged EXIF photo verification
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/dashboard/parcels"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-50 transition-colors"
+                >
+                  <ArrowLeft size={13} />
+                  Back to Parcels
+                </Link>
+              </div>
+            </div>
+
+            {/* Main Form & GNSS Monitor */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              {/* Left 2 Cols: Survey Form */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-4">
+                  <h2 className="text-sm font-bold text-[#1F3864]">Select Target Parcel for Measurement</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Target Parcel</label>
+                      <select
+                        value={selectedParcelId}
+                        onChange={(e) => setSelectedParcelId(e.target.value)}
+                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-[#1F3864]"
+                      >
+                        <option value="UP-AGR-004821">UP-AGR-004821 (Ramesh K. - Rampur Khas, Varanasi)</option>
+                        <option value="UP-AGR-004822">UP-AGR-004822 (Sunita D. - Rampur Khas, Varanasi)</option>
+                        <option value="RJ-ARD-002187">RJ-ARD-002187 (Priya M. - Khuri, Jaisalmer)</option>
+                        <option value="MH-URB-006902">MH-URB-006902 (Kavita S. - Hadapsar, Pune)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Survey Officer Name</label>
+                      <input
+                        type="text"
+                        value={user?.name || "Vikramaditya Rathore"}
+                        disabled
+                        className="w-full p-2.5 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Corner Pegs Marking Checklist */}
+                  <div className="space-y-2 pt-2 border-t border-gray-100">
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">
+                      Physical Boundary Corner Pegs Installed & Verified
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                      {[
+                        { key: "ne", label: "North-East Peg" },
+                        { key: "se", label: "South-East Peg" },
+                        { key: "sw", label: "South-West Peg" },
+                        { key: "nw", label: "North-West Peg" },
+                      ].map((peg) => (
+                        <button
+                          key={peg.key}
+                          type="button"
+                          onClick={() => togglePeg(peg.key as any)}
+                          className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
+                            pegs[peg.key as keyof typeof pegs]
+                              ? "bg-green-50 border-green-300 text-green-800 font-bold"
+                              : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+                          }`}
+                        >
+                          {pegs[peg.key as keyof typeof pegs] ? (
+                            <CheckSquare size={15} className="text-[#138808]" />
+                          ) : (
+                            <Square size={15} className="text-gray-400" />
+                          )}
+                          <span className="text-[11px]">{peg.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Geotagged Photo Upload */}
+                  <div className="space-y-2 pt-2 border-t border-gray-100">
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">
+                      Geotagged Photo Upload (EXIF Latitude/Longitude Verification)
+                    </label>
+                    <div
+                      onClick={handlePhotoUpload}
+                      className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all ${
+                        photoUploaded
+                          ? "bg-green-50/50 border-green-300"
+                          : "bg-gray-50 border-gray-300 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Camera size={24} className={`mx-auto mb-1.5 ${photoUploaded ? "text-green-600" : "text-gray-400"}`} />
+                      <p className="text-xs font-bold text-[#1F3864]">
+                        {photoUploaded ? "✓ Field Photo Captured & EXIF Coordinates Checked" : "Click to Capture Ground Photo (or upload sample)"}
+                      </p>
+                      {exifVerified && (
+                        <p className="text-[10px] text-green-700 font-semibold mt-1">
+                          EXIF Match: 25.3176° N, 82.9739° E · Within 2.1m of polygon centroid
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={handleSubmitSurvey}
+                      disabled={isSubmitting}
+                      className="w-full py-3 bg-[#138808] hover:bg-[#0E5F05] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <Shield size={14} />
+                      {isSubmitting ? "Submitting to State Registry..." : "Digitally Certify & Complete Stage 7 Survey"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Col: GNSS Accuracy & Live Telemetry */}
+              <div className="space-y-4">
+                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-[#1F3864] uppercase tracking-wider">GNSS Telemetry</h3>
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  </div>
+
+                  <div className="bg-[#0B1F3A] text-white p-4 rounded-xl space-y-2 font-mono text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Fix Mode:</span>
+                      <span className="text-green-400 font-bold">RTK FIXED</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Satellites:</span>
+                      <span>18 (GPS + NavIC)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Accuracy:</span>
+                      <span className="text-green-400 font-bold">±{gpsAccuracy}m</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Lat / Lon:</span>
+                      <span className="text-[10.5px]">25.3176° N, 82.9739° E</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Elevation:</span>
+                      <span>84.2m MSL</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleCalibrateGps}
+                    disabled={isCalibrating}
+                    className="w-full py-2 bg-[#EAF0F8] text-[#1F3864] hover:bg-[#1F3864] hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Crosshair size={14} className={isCalibrating ? "animate-spin" : ""} />
+                    {isCalibrating ? "Calibrating..." : "Calibrate Differential GNSS"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </ProtectedRoute>
+  );
+}

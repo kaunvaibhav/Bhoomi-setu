@@ -26,6 +26,7 @@ export default function Footer() {
             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Platform</div>
             <ul className="space-y-2 text-sm text-gray-300">
               <li><Link href="/dashboard" className="hover:text-white transition-colors">National Dashboard</Link></li>
+              <li><Link href="/projects" className="hover:text-white transition-colors">Projects Directory</Link></li>
               <li><Link href="/track-case" className="hover:text-white transition-colors">Track My Case</Link></li>
               <li><Link href="/valuation-review" className="hover:text-white transition-colors">Valuation Review</Link></li>
               <li><Link href="/projects/new" className="hover:text-white transition-colors">Submit Proposal</Link></li>

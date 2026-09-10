@@ -7,6 +7,7 @@ import { Menu, X, MapPin, LayoutDashboard, Search, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const NAV_LINKS = [
+  { href: "/projects", label: "Projects Directory" },
   { href: "/#features", label: "Features" },
   { href: "/#architecture", label: "Architecture" },
   { href: "/#process", label: "Process Flow" },
