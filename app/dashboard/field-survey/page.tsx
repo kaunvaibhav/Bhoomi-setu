@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import {
   Compass, MapPin, Camera, CheckCircle, AlertTriangle,
@@ -14,6 +14,89 @@ import ToastNotification, { useToast } from "@/components/ToastNotification";
 import { useAuth } from "@/context/AuthContext";
 import { SAMPLE_PROJECTS, UserRole, DEMO_ROLES } from "@/lib/mockData";
 
+function getExifGps(file: File): Promise<{lat: number, lon: number} | null> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const buf = e.target!.result as ArrayBuffer;
+        const view = new DataView(buf);
+        if (view.getUint16(0, false) !== 0xFFD8) return resolve(null);
+        let offset = 2;
+        while (offset < view.byteLength) {
+          if (view.getUint16(offset, false) === 0xFFE1) {
+            const exifOffset = offset + 4;
+            if (view.getUint32(exifOffset, false) !== 0x45786966) return resolve(null);
+            const tiffOffset = exifOffset + 6;
+            const littleEndian = view.getUint16(tiffOffset, false) === 0x4949;
+            const ifdOffset = view.getUint32(tiffOffset + 4, littleEndian);
+            
+            const parseIFD = (start: number) => {
+              const numDirEntries = view.getUint16(start, littleEndian);
+              let gpsOffset = null;
+              for (let i = 0; i < numDirEntries; i++) {
+                const entryOffset = start + 2 + i * 12;
+                const tag = view.getUint16(entryOffset, littleEndian);
+                if (tag === 0x8825) {
+                  gpsOffset = view.getUint32(entryOffset + 8, littleEndian);
+                  break;
+                }
+              }
+              return gpsOffset;
+            };
+            
+            const gpsOffset = parseIFD(tiffOffset + ifdOffset);
+            if (!gpsOffset) return resolve(null);
+            
+            const gpsStart = tiffOffset + gpsOffset;
+            const numGpsEntries = view.getUint16(gpsStart, littleEndian);
+            let latRef = '', lonRef = '';
+            let lat: number[] = [], lon: number[] = [];
+            
+            for (let i = 0; i < numGpsEntries; i++) {
+              const entryOffset = gpsStart + 2 + i * 12;
+              const tag = view.getUint16(entryOffset, littleEndian);
+              
+              if (tag === 1 || tag === 3) {
+                const val = String.fromCharCode(view.getUint8(entryOffset + 8));
+                if (tag === 1) latRef = val;
+                if (tag === 3) lonRef = val;
+              }
+              if (tag === 2 || tag === 4) {
+                const valOffset = tiffOffset + view.getUint32(entryOffset + 8, littleEndian);
+                const coords = [];
+                for(let j=0; j<3; j++) {
+                  const num = view.getUint32(valOffset + j*8, littleEndian);
+                  const den = view.getUint32(valOffset + j*8 + 4, littleEndian);
+                  if (den !== 0) coords.push(num/den);
+                  else coords.push(0);
+                }
+                if (tag === 2) lat = coords;
+                if (tag === 4) lon = coords;
+              }
+            }
+            
+            if (lat.length === 3 && lon.length === 3) {
+              const latitude = lat[0] + lat[1]/60 + lat[2]/3600;
+              const longitude = lon[0] + lon[1]/60 + lon[2]/3600;
+              return resolve({
+                lat: latRef === 'S' ? -latitude : latitude,
+                lon: lonRef === 'W' ? -longitude : longitude
+              });
+            }
+            return resolve(null);
+          }
+          offset += view.getUint16(offset + 2, false) + 2;
+        }
+        resolve(null);
+      } catch (err) {
+        resolve(null);
+      }
+    };
+    reader.readAsArrayBuffer(file.slice(0, 128 * 1024));
+  });
+}
+
 export default function DashboardFieldSurveyPage() {
   const { user, logout } = useAuth();
   const role: UserRole = (user?.role as UserRole) || "field";
@@ -24,6 +107,10 @@ export default function DashboardFieldSurveyPage() {
   const [isCalibrating, setIsCalibrating] = useState(false);
   const [photoUploaded, setPhotoUploaded] = useState(false);
   const [exifVerified, setExifVerified] = useState(false);
+  const [isVerifyingPhoto, setIsVerifyingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const [exifCoords, setExifCoords] = useState<{lat: number, lon: number} | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [pegs, setPegs] = useState({
     ne: true,
     se: true,
@@ -42,12 +129,35 @@ export default function DashboardFieldSurveyPage() {
     }, 700);
   };
 
-  const handlePhotoUpload = () => {
+  const triggerPhotoUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     setPhotoUploaded(true);
-    setTimeout(() => {
+    setIsVerifyingPhoto(true);
+    setExifVerified(false);
+    setPhotoError("");
+    setExifCoords(null);
+
+    const coords = await getExifGps(file);
+
+    setIsVerifyingPhoto(false);
+
+    if (coords) {
       setExifVerified(true);
-      addToast("success", "Geotagged Survey Photo EXIF matched parcel boundary (Lat: 25.3176, Lon: 82.9739)");
-    }, 500);
+      setExifCoords(coords);
+      addToast("success", `Geotagged Survey Photo EXIF matched (Lat: ${coords.lat.toFixed(4)}, Lon: ${coords.lon.toFixed(4)})`);
+    } else {
+      setPhotoError("No valid GPS/EXIF data found. A geotagged image is required.");
+      setPhotoUploaded(false);
+      addToast("error", "Image verification failed: Missing Geotags");
+    }
+    
+    if (e.target) e.target.value = '';
   };
 
   const togglePeg = (key: keyof typeof pegs) => {
@@ -58,8 +168,8 @@ export default function DashboardFieldSurveyPage() {
 
   const handleSubmitSurvey = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!photoUploaded || !allPegsMarked) {
-      addToast("error", "Please complete all 4 boundary markers and upload geotagged photo");
+    if (!exifVerified || !allPegsMarked) {
+      addToast("error", "Please complete all 4 boundary markers and upload a verified geotagged photo");
       return;
     }
 
@@ -214,22 +324,51 @@ export default function DashboardFieldSurveyPage() {
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">
                       Geotagged Photo Upload (EXIF Latitude/Longitude Verification)
                     </label>
+                    <input 
+                      type="file" 
+                      accept="image/jpeg, image/jpg, image/png" 
+                      className="hidden" 
+                      ref={fileInputRef} 
+                      onChange={handlePhotoUpload} 
+                    />
                     <div
-                      onClick={handlePhotoUpload}
+                      onClick={triggerPhotoUpload}
                       className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all ${
-                        photoUploaded
-                          ? "bg-green-50/50 border-green-300"
-                          : "bg-gray-50 border-gray-300 hover:bg-gray-100"
+                        photoError 
+                          ? "bg-red-50 border-red-300" 
+                          : exifVerified
+                            ? "bg-green-50/50 border-green-300"
+                            : "bg-gray-50 border-gray-300 hover:bg-gray-100"
                       }`}
                     >
-                      <Camera size={24} className={`mx-auto mb-1.5 ${photoUploaded ? "text-green-600" : "text-gray-400"}`} />
-                      <p className="text-xs font-bold text-[#1F3864]">
-                        {photoUploaded ? "✓ Field Photo Captured & EXIF Coordinates Checked" : "Click to Capture Ground Photo (or upload sample)"}
-                      </p>
-                      {exifVerified && (
-                        <p className="text-[10px] text-green-700 font-semibold mt-1">
-                          EXIF Match: 25.3176° N, 82.9739° E · Within 2.1m of polygon centroid
+                      <Camera size={24} className={`mx-auto mb-1.5 ${photoError ? "text-red-500" : exifVerified ? "text-green-600" : "text-gray-400"}`} />
+                      
+                      {isVerifyingPhoto ? (
+                        <p className="text-xs font-bold text-[#1F3864] animate-pulse">
+                          Verifying EXIF Data...
                         </p>
+                      ) : exifVerified ? (
+                        <>
+                          <p className="text-xs font-bold text-[#1F3864]">
+                            ✓ Field Photo Captured & EXIF Coordinates Checked
+                          </p>
+                          {exifCoords && (
+                            <p className="text-[10px] text-green-700 font-semibold mt-1">
+                              EXIF Match: {exifCoords.lat.toFixed(4)}° N, {exifCoords.lon.toFixed(4)}° E
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-xs font-bold text-[#1F3864]">
+                            Click to Capture Ground Photo (or upload sample)
+                          </p>
+                          {photoError && (
+                            <p className="text-[10px] text-red-600 font-semibold mt-1">
+                              {photoError}
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -238,8 +377,12 @@ export default function DashboardFieldSurveyPage() {
                     <button
                       type="button"
                       onClick={handleSubmitSurvey}
-                      disabled={isSubmitting}
-                      className="w-full py-3 bg-[#138808] hover:bg-[#0E5F05] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2"
+                      disabled={isSubmitting || !exifVerified || !allPegsMarked}
+                      className={`w-full py-3 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 ${
+                        isSubmitting || !exifVerified || !allPegsMarked
+                          ? 'bg-gray-400 cursor-not-allowed opacity-70'
+                          : 'bg-[#138808] hover:bg-[#0E5F05]'
+                      }`}
                     >
                       <Shield size={14} />
                       {isSubmitting ? "Submitting to State Registry..." : "Digitally Certify & Complete Stage 7 Survey"}

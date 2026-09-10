@@ -78,7 +78,7 @@ export default function MainNavbar() {
         <div className="hidden lg:flex items-center gap-2">
           <Link
             href="/track-case"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium text-[#138808] border border-[#138808] hover:bg-[#EAF7EE] transition-colors"
+            className="flex items-center justify-center gap-1.5 px-3 h-8 rounded text-sm font-medium text-[#138808] border border-[#138808] hover:bg-[#EAF7EE] transition-colors whitespace-nowrap"
           >
             <Search size={14} />
             Track My Case
@@ -87,7 +87,7 @@ export default function MainNavbar() {
             <div className="flex items-center gap-2">
               <Link
                 href="/dashboard"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-[#1F3864] text-white text-sm font-medium hover:bg-[#2A4A8A] transition-colors"
+                className="flex items-center justify-center gap-1.5 px-3.5 h-8 rounded bg-[#1F3864] text-white text-sm font-medium hover:bg-[#2A4A8A] transition-colors whitespace-nowrap"
               >
                 <LayoutDashboard size={14} />
                 Dashboard ({user.roleTitle})
@@ -95,7 +95,7 @@ export default function MainNavbar() {
               <button
                 type="button"
                 onClick={logout}
-                className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
                 title="Sign Out"
               >
                 <LogOut size={16} />
@@ -104,7 +104,7 @@ export default function MainNavbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-[#1F3864] text-white text-sm font-medium hover:bg-[#2A4A8A] transition-colors"
+              className="flex items-center justify-center gap-1.5 px-4 h-8 rounded bg-[#1F3864] text-white text-sm font-medium hover:bg-[#2A4A8A] transition-colors whitespace-nowrap"
             >
               <LayoutDashboard size={14} />
               Login
