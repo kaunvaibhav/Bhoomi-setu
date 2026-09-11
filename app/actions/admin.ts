@@ -8,7 +8,7 @@ import { AuthSession } from "@/lib/auth";
  */
 async function authorizeAdminAction(): Promise<{ success: boolean; error?: string; session?: AuthSession }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get("bhoomisetu_auth");
 
     if (!authCookie || !authCookie.value) {

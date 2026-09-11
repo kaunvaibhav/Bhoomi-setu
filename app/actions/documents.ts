@@ -5,7 +5,7 @@ import { ALL_SYSTEM_DOCUMENTS, Document } from "@/lib/mockData";
 
 export async function getAuthorizedDocuments(): Promise<{ success: boolean; data?: Document[]; error?: string }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get("bhoomisetu_auth");
 
     if (!authCookie) {

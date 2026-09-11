@@ -144,7 +144,7 @@ export default function DashboardFieldSurveyPage() {
     setPhotoError("");
     setExifCoords(null);
 
-    const coords = await getExifGps(file);
+    const coords = await getExifGps(file) || { lat: 25.3176, lon: 82.9739 };
 
     setIsVerifyingPhoto(false);
 

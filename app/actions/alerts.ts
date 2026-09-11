@@ -88,7 +88,7 @@ const CITIZEN_ALERTS: AlertItem[] = [
 
 export async function getAuthorizedAlerts(): Promise<{ success: boolean; data?: AlertItem[]; error?: string }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get("bhoomisetu_auth");
 
     if (!authCookie) {

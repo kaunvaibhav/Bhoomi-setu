@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   FileText, Search, Filter, Download, Upload, Eye, CheckCircle,
@@ -28,7 +28,6 @@ export default function DashboardDocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  import { useEffect } from "react";
   useEffect(() => {
     async function fetchDocs() {
       const res = await getAuthorizedDocuments();

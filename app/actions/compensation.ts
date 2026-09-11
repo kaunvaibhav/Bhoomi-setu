@@ -6,7 +6,7 @@ import { AuthSession } from "@/lib/auth";
 
 export async function getAuthorizedCompensationRecords(): Promise<{ success: boolean; data?: CompensationTransaction[]; error?: string }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get("bhoomisetu_auth");
 
     if (!authCookie || !authCookie.value) {

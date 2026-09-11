@@ -6,7 +6,7 @@ import { SAMPLE_RNR_BENEFICIARIES, RnrBeneficiary } from "@/lib/mockData";
 
 export async function getAuthorizedRnrRecords(): Promise<{ success: boolean; data?: RnrBeneficiary[]; error?: string }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get("bhoomisetu_auth");
 
     if (!authCookie || !authCookie.value) {

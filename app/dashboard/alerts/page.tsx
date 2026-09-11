@@ -274,7 +274,7 @@ export default function DashboardAlertsPage() {
                     </button>
                   </div>
                 </div>
-              ))}
+              ))
 
               )}
             </div>
