@@ -832,12 +832,6 @@ function DemoSection() {
                 ))}
               </tbody>
             </table>
-
-            <div className="mt-5 pt-4 border-t border-gray-100 bg-amber-50 rounded-xl p-3">
-              <p className="text-[11px] text-amber-700 leading-snug">
-                Update team details in <code className="bg-amber-100 px-1 rounded">lib/mockData.ts</code> → <code className="bg-amber-100 px-1 rounded">SIH_META</code>
-              </p>
-            </div>
           </div>
         </div>
       </div>
