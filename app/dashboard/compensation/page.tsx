@@ -139,6 +139,9 @@ export default function DashboardCompensationPage() {
   const totalDisbursed = transactions.reduce((acc, curr) => acc + curr.disbursedAmount, 0);
   const pendingCount = transactions.filter((t) => t.status !== "disbursed").length;
 
+  const isAuthority = role === "district" || role === "lao" || role === "field";
+  const isCitizen = role === "citizen";
+
   return (
     <ProtectedRoute>
       <TopUtilityBar />
@@ -153,10 +156,10 @@ export default function DashboardCompensationPage() {
               <span className="text-gray-300">/</span>
               <Link href="/dashboard" className="text-sm font-medium text-gray-600 hover:text-[#1F3864]">Dashboard</Link>
               <span className="text-gray-300">/</span>
-              <span className="text-sm font-semibold text-[#1F3864]">Compensation & PFMS-DBT</span>
+              <span className="text-sm font-semibold text-[#1F3864]">
+                {isCitizen ? "My Compensation & PFMS-DBT" : "Compensation & PFMS-DBT"}
+              </span>
             </div>
-
-            
           </div>
         </div>
 
@@ -174,15 +177,21 @@ export default function DashboardCompensationPage() {
                   <div className="w-8 h-8 rounded-xl bg-green-100 text-green-700 flex items-center justify-center">
                     <DollarSign size={18} />
                   </div>
-                  <h1 className="text-xl font-bold text-[#1F3864]">Compensation Disbursement (Stage 9)</h1>
+                  <h1 className="text-xl font-bold text-[#1F3864]">
+                    {isCitizen
+                      ? "My Statutory Compensation & Direct Benefit Transfer"
+                      : "Compensation Disbursement & PFMS Ledger (Stage 9)"}
+                  </h1>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  PFMS (Public Financial Management System) Direct Benefit Transfer ledger & solatium calculator
+                  {isCitizen
+                    ? "Direct Benefit Transfer (DBT) details, 100% Solatium calculation, and bank credit status for your landholding"
+                    : "PFMS (Public Financial Management System) Direct Benefit Transfer ledger & solatium calculator"}
                 </p>
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                {role !== "citizen" && (
+                {!isCitizen && (
                   <>
                     <button
                       onClick={handleRefresh}
@@ -202,13 +211,15 @@ export default function DashboardCompensationPage() {
                       <Download size={13} />
                       Export Ledger
                     </button>
-                    <button
-                      onClick={() => setBatchModalOpen(true)}
-                      className="flex items-center gap-1.5 px-3.5 py-2 bg-[#138808] text-white rounded-xl text-xs font-semibold hover:bg-[#0E5F05] transition-colors shadow-xs"
-                    >
-                      <Send size={14} />
-                      Batch PFMS Release
-                    </button>
+                    {isAuthority && (
+                      <button
+                        onClick={() => setBatchModalOpen(true)}
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-[#138808] text-white rounded-xl text-xs font-semibold hover:bg-[#0E5F05] transition-colors shadow-xs"
+                      >
+                        <Send size={14} />
+                        Batch PFMS Release
+                      </button>
+                    )}
                   </>
                 )}
               </div>
@@ -216,28 +227,61 @@ export default function DashboardCompensationPage() {
 
             {/* Metrics cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Total Assessed Value</p>
-                <p className="text-xl font-bold text-[#1F3864] mt-1">{formatCurrency(totalAssessed)}</p>
-                <p className="text-[10px] text-gray-400 mt-0.5">Base Land Valuation</p>
-              </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Total Payable (+ Solatium)</p>
-                <p className="text-xl font-bold text-[#1F3864] mt-1">{formatCurrency(totalPayable)}</p>
-                <p className="text-[10px] text-blue-600 mt-0.5">Incl. 100% Solatium & Int.</p>
-              </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Total Disbursed (PFMS)</p>
-                <p className="text-xl font-bold text-[#138808] mt-1">{formatCurrency(totalDisbursed)}</p>
-                <p className="text-[10px] text-green-700 font-semibold mt-0.5">
-                  {((totalDisbursed / totalPayable) * 100).toFixed(1)}% Disbursed
-                </p>
-              </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-                <p className="text-xs text-gray-500 font-medium">Pending Payouts</p>
-                <p className="text-xl font-bold text-amber-600 mt-1">{pendingCount} Beneficiaries</p>
-                <p className="text-[10px] text-amber-600 mt-0.5">Awaiting release / verification</p>
-              </div>
+              {isCitizen ? (
+                <>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Base Assessed Value</p>
+                    <p className="text-xl font-bold text-[#1F3864] mt-1">{formatCurrency(totalAssessed)}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">Circle rate / market valuation</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Total Statutory Entitlement</p>
+                    <p className="text-xl font-bold text-[#1F3864] mt-1">{formatCurrency(totalPayable)}</p>
+                    <p className="text-[10px] text-blue-600 mt-0.5">Includes 100% Solatium & 12% Int.</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Credited to Your Bank</p>
+                    <p className="text-xl font-bold text-[#138808] mt-1">{formatCurrency(totalDisbursed)}</p>
+                    <p className="text-[10px] text-green-700 font-semibold mt-0.5">
+                      Direct Benefit Transfer (DBT)
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">PFMS Payment Status</p>
+                    <p className="text-xl font-bold text-green-700 mt-1">
+                      {transactions[0]?.status === "disbursed" ? "Credited" : "Under Processing"}
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
+                      {transactions[0]?.pfmsTxnId || "Aadhaar NPCI Verified"}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Total Assessed Value</p>
+                    <p className="text-xl font-bold text-[#1F3864] mt-1">{formatCurrency(totalAssessed)}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">Base Land Valuation</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Total Payable (+ Solatium)</p>
+                    <p className="text-xl font-bold text-[#1F3864] mt-1">{formatCurrency(totalPayable)}</p>
+                    <p className="text-[10px] text-blue-600 mt-0.5">Incl. 100% Solatium & Int.</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Total Disbursed (PFMS)</p>
+                    <p className="text-xl font-bold text-[#138808] mt-1">{formatCurrency(totalDisbursed)}</p>
+                    <p className="text-[10px] text-green-700 font-semibold mt-0.5">
+                      {totalPayable > 0 ? ((totalDisbursed / totalPayable) * 100).toFixed(1) : "0"}% Disbursed
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+                    <p className="text-xs text-gray-500 font-medium">Pending Payouts</p>
+                    <p className="text-xl font-bold text-amber-600 mt-1">{pendingCount} Beneficiaries</p>
+                    <p className="text-[10px] text-amber-600 mt-0.5">Awaiting release / verification</p>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Filters */}
@@ -409,7 +453,7 @@ export default function DashboardCompensationPage() {
                 >
                   Close
                 </button>
-                {selectedTxn.status !== "disbursed" && role !== "citizen" && (
+                {selectedTxn.status !== "disbursed" && isAuthority && (
                   <button
                     onClick={() => handleDisburseSingle(selectedTxn.id)}
                     className="px-4 py-2 bg-[#138808] text-white rounded-xl font-bold hover:bg-[#0E5F05] flex items-center gap-1.5"

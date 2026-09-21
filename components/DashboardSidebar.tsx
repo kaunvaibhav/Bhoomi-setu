@@ -16,21 +16,126 @@ interface SidebarItem {
   icon: React.ReactNode;
   badge?: number;
   allowedRoles?: UserRole[];
+  roleLabels?: Partial<Record<UserRole, string>>;
 }
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
-  { href: "/dashboard", label: "Overview", icon: <LayoutDashboard size={16} /> },
-  { href: "/dashboard/projects", label: "Projects", icon: <FolderOpen size={16} /> },
-  { href: "/dashboard/parcels", label: "Land Parcels", icon: <MapPin size={16} /> },
-  { href: "/dashboard/field-survey", label: "Field Survey PWA", icon: <Compass size={16} /> },
-  { href: "/dashboard/compensation", label: "Compensation", icon: <DollarSign size={16} /> },
-  { href: "/dashboard/rnr", label: "R&R Tracker", icon: <Users size={16} /> },
-  { href: "/valuation-review", label: "Valuation Review", icon: <Brain size={16} />, badge: 38, allowedRoles: ["ministry", "state", "district"] },
-  { href: "/dashboard/documents", label: "Documents", icon: <FileText size={16} /> },
-  { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 size={16} />, allowedRoles: ["ministry", "state"] },
-  { href: "/dashboard/alerts", label: "Alerts", icon: <Bell size={16} />, badge: 4 },
-  { href: "/dashboard/audit", label: "Audit Trail", icon: <ClipboardList size={16} />, allowedRoles: ["ministry"] },
-  { href: "/help", label: "Help", icon: <HelpCircle size={16} /> },
+  {
+    href: "/dashboard",
+    label: "Overview",
+    icon: <LayoutDashboard size={16} />,
+    roleLabels: {
+      citizen: "My Land & Case",
+      pia: "PIA Workspace",
+      lao: "LAO Workbench",
+      district: "District Command",
+      state: "State Overview",
+      ministry: "National Overview",
+    },
+  },
+  {
+    href: "/dashboard/projects",
+    label: "Projects",
+    icon: <FolderOpen size={16} />,
+    allowedRoles: ["ministry", "state", "district", "lao", "pia", "field"],
+    roleLabels: {
+      pia: "My Corridor Projects",
+      district: "District Projects",
+      state: "State Projects",
+      lao: "Assigned Projects",
+    },
+  },
+  {
+    href: "/dashboard/parcels",
+    label: "Land Parcels",
+    icon: <MapPin size={16} />,
+    allowedRoles: ["ministry", "state", "district", "lao", "pia", "citizen", "field"],
+    roleLabels: {
+      citizen: "My Land Parcel",
+      pia: "Land Requirements",
+      lao: "Cadastral Parcels",
+    },
+  },
+  {
+    href: "/dashboard/field-survey",
+    label: "Field Survey PWA",
+    icon: <Compass size={16} />,
+    allowedRoles: ["lao", "district", "field"],
+  },
+  {
+    href: "/dashboard/compensation",
+    label: "Compensation",
+    icon: <DollarSign size={16} />,
+    allowedRoles: ["ministry", "state", "district", "lao", "pia", "citizen", "field"],
+    roleLabels: {
+      citizen: "Compensation Award",
+      lao: "Valuation & Claims",
+      district: "PFMS Sanction Ledger",
+    },
+  },
+  {
+    href: "/dashboard/rnr",
+    label: "R&R Tracker",
+    icon: <Users size={16} />,
+    allowedRoles: ["ministry", "state", "district", "lao", "pia", "field"],
+    roleLabels: {
+      pia: "R&R Resettlement Status",
+      state: "State R&R Schemes",
+    },
+  },
+  {
+    href: "/valuation-review",
+    label: "Valuation Review",
+    icon: <Brain size={16} />,
+    badge: 38,
+    allowedRoles: ["ministry", "state", "district", "lao", "field"],
+  },
+  {
+    href: "/dashboard/documents",
+    label: "Documents",
+    icon: <FileText size={16} />,
+    allowedRoles: ["ministry", "state", "district", "lao", "pia", "citizen", "field"],
+    roleLabels: {
+      citizen: "Notices & Submissions",
+      state: "Gazette Notifications",
+    },
+  },
+  {
+    href: "/track-case/BS-UP-2026-004821",
+    label: "Track Case Timeline",
+    icon: <Compass size={16} />,
+    allowedRoles: ["citizen"],
+  },
+  {
+    href: "/dashboard/reports",
+    label: "Reports & MIS",
+    icon: <BarChart3 size={16} />,
+    allowedRoles: ["ministry", "state", "district", "pia"],
+    roleLabels: {
+      pia: "Project MIS",
+      district: "District MIS",
+      state: "State MIS",
+      ministry: "National MIS",
+    },
+  },
+  {
+    href: "/dashboard/alerts",
+    label: "Alerts",
+    icon: <Bell size={16} />,
+    badge: 4,
+    allowedRoles: ["ministry", "state", "district", "lao", "pia", "citizen", "field"],
+  },
+  {
+    href: "/dashboard/audit",
+    label: "Audit Trail",
+    icon: <ClipboardList size={16} />,
+    allowedRoles: ["ministry", "state", "district", "lao", "field"],
+  },
+  {
+    href: "/help",
+    label: "Helpdesk & SOPs",
+    icon: <HelpCircle size={16} />,
+  },
 ];
 
 interface DashboardSidebarProps {
@@ -52,25 +157,29 @@ export default function DashboardSidebar({ currentRole, onClose }: DashboardSide
       {/* Nav items */}
       <nav className="flex-1 p-3 space-y-0.5" aria-label="Sidebar">
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 py-1.5">Navigation</p>
-        {SIDEBAR_ITEMS.filter((item) => !item.allowedRoles || item.allowedRoles.includes(currentRole)).map((item) => {
+        {SIDEBAR_ITEMS.filter((item) => {
+          const effective = currentRole === "field" ? "lao" : currentRole;
+          return !item.allowedRoles || item.allowedRoles.includes(effective) || item.allowedRoles.includes(currentRole);
+        }).map((item) => {
+          const effective = currentRole === "field" ? "lao" : currentRole;
+          const label = item.roleLabels?.[effective] || item.roleLabels?.[currentRole] || item.label;
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname?.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => onClose?.()}
-              className={`flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
-                isActive
+              className={`flex items-center justify-between gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${isActive
                   ? "bg-[#EAF0F8] text-[#1F3864]"
                   : "text-gray-600 hover:text-[#1F3864] hover:bg-gray-50"
-              }`}
+                }`}
               aria-current={isActive ? "page" : undefined}
             >
               <span className="flex items-center gap-2.5">
                 <span className={isActive ? "text-[#1F3864]" : "text-gray-400 group-hover:text-[#1F3864]"}>
                   {item.icon}
                 </span>
-                {item.label}
+                {label}
               </span>
               {item.badge && (
                 <span className="bg-[#FF9933] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
@@ -101,7 +210,7 @@ export default function DashboardSidebar({ currentRole, onClose }: DashboardSide
               </p>
             </div>
           </div>
-          <p 
+          <p
             className="text-[9.5px] text-gray-400 leading-tight mb-2.5 line-clamp-2 break-words"
             title={user?.department || roleConfig.description}
           >

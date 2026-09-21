@@ -211,16 +211,22 @@ function LoginForm() {
                 className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#1F3864] focus:border-[#1F3864] bg-gray-50 text-gray-800 transition-all"
               >
                 <option value="ministry">
-                  Ministry Analyst — Ministry of Rural Development | DoLR
+                  1. Ministry Analyst — National Monitoring & Decision Support (DoLR)
+                </option>
+                <option value="state">
+                  2. State Government Officer — State Supervision & Gazette e-Sign (UP)
                 </option>
                 <option value="district">
-                  District Collector — District Administration & Land Acquisition Unit
+                  3. District Collector — District Administration & Approvals (Varanasi)
+                </option>
+                <option value="lao">
+                  4. Land Acquisition Officer — Operational Execution & Valuation (CALA)
                 </option>
                 <option value="pia">
-                  PIA Officer — Project Implementing Agency (NHAI / Corridors)
+                  5. PIA Officer — Project Implementing Agency (NHAI)
                 </option>
                 <option value="citizen">
-                  Citizen / Land Owner — Registered Citizen & Landholder
+                  6. Citizen / Land Owner — Registered Citizen & Landholder
                 </option>
               </select>
               <p className="text-[10px] text-gray-400 mt-1 italic">
@@ -250,7 +256,7 @@ function LoginForm() {
               <div className="flex items-center gap-1.5 text-[#1F3864]">
                 <KeyRound size={14} className="text-[#FF9933]" />
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Prototype Credentials Reference
+                  6 Official Roles · Credentials Reference
                 </span>
               </div>
               <span className="text-[10px] text-gray-400 font-medium">
@@ -259,7 +265,9 @@ function LoginForm() {
             </div>
 
             <div className="space-y-2">
-              {Object.entries(PROTOTYPE_CREDENTIALS).map(
+              {Object.entries(PROTOTYPE_CREDENTIALS)
+                .filter(([email]) => email !== "field@bhoomisetu.gov.in")
+                .map(
                 ([credEmail, { password: credPass, user: u }]) => {
                   const isFilled =
                     email === credEmail &&

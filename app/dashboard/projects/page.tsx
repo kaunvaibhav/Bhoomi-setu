@@ -40,12 +40,20 @@ export default function DashboardProjectsPage() {
 
   const states = Array.from(new Set(SAMPLE_PROJECTS.map((p) => p.state)));
 
+  const effectiveRole = role === "field" ? "lao" : role;
+
   const filteredProjects = SAMPLE_PROJECTS.filter((p) => {
     const matchRole =
-      role === "district"
+      effectiveRole === "citizen"
+        ? p.id === "PROJ-UP-001"
+        : effectiveRole === "district"
+        ? p.district === "Varanasi" || p.state === "Uttar Pradesh"
+        : effectiveRole === "state"
         ? p.state === "Uttar Pradesh"
-        : role === "pia"
+        : effectiveRole === "pia"
         ? p.requiringBody === "National Highways Authority of India"
+        : effectiveRole === "lao"
+        ? p.district === "Varanasi"
         : true;
 
     const matchSearch =
@@ -116,13 +124,15 @@ export default function DashboardProjectsPage() {
                   <Download size={13} />
                   Export MIS
                 </button>
-                <Link
-                  href="/projects/new"
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-[#1F3864] text-white rounded-xl text-xs font-semibold hover:bg-[#2A4A8A] transition-colors shadow-xs"
-                >
-                  <Plus size={14} />
-                  New Proposal
-                </Link>
+                {effectiveRole === "pia" && (
+                  <Link
+                    href="/projects/new"
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-[#065F46] text-white rounded-xl text-xs font-semibold hover:bg-emerald-800 transition-colors shadow-xs"
+                  >
+                    <Plus size={14} />
+                    Submit New Proposal
+                  </Link>
+                )}
               </div>
             </div>
 

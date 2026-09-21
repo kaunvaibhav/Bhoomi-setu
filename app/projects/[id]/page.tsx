@@ -14,7 +14,7 @@ import ToastNotification, { useToast } from "@/components/ToastNotification";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut } from "lucide-react";
-import { SAMPLE_PROJECTS, type Project } from "@/lib/mockData";
+import { SAMPLE_PROJECTS, type Project, type UserRole } from "@/lib/mockData";
 import { generateStageProgress } from "@/lib/workflowStages";
 import { formatArea, formatCurrency, calculateProgress } from "@/lib/utils";
 
@@ -25,6 +25,17 @@ interface PageProps {
 export default function ProjectDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const { user, logout } = useAuth();
+  const rawRole = (user?.role as UserRole) || "ministry";
+  const role: UserRole = rawRole === "field" ? "lao" : rawRole;
+
+  // Statutory Stage Authorities
+  const canScrutinize = role === "district" || role === "lao";
+  const canApproveScrutiny = role === "district";
+  const canApproveSia = role === "state" || role === "district";
+  const canPublishS11 = role === "state";
+  const canDisposeObjections = role === "district";
+  const canSignS19 = role === "state";
+  const canDeclareAward = role === "district";
   
   const [project, setProject] = useState<Project | null>(() => SAMPLE_PROJECTS.find((p) => p.id === id) || null);
   const [activeTab, setActiveTab] = useState<"lifecycle" | "documents" | "parcels">("lifecycle");
@@ -440,25 +451,37 @@ export default function ProjectDetailPage({ params }: PageProps) {
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={handleApproveScrutiny}
-                        disabled={!allChecksPassed}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
-                          allChecksPassed ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm" : "bg-gray-300 cursor-not-allowed text-gray-500"
-                        }`}
-                      >
-                        <ThumbsUp size={13} /> Approve Stage 2
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRejectModalOpen(true)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
-                      >
-                        <ThumbsDown size={13} /> Send Back
-                      </button>
-                    </div>
+                    {canApproveScrutiny ? (
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleApproveScrutiny}
+                          disabled={!allChecksPassed}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
+                            allChecksPassed ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm cursor-pointer" : "bg-gray-300 cursor-not-allowed text-gray-500"
+                          }`}
+                        >
+                          <ThumbsUp size={13} /> Approve Stage 2 (District Sanction)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRejectModalOpen(true)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
+                        >
+                          <ThumbsDown size={13} /> Send Back With Query
+                        </button>
+                      </div>
+                    ) : role === "lao" ? (
+                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center justify-between">
+                        <span>Checklist completed by LAO. Forwarded to District Collector for statutory sanction.</span>
+                        <span className="font-bold text-amber-800">Scrutinized</span>
+                      </div>
+                    ) : (
+                      <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 flex items-center gap-2">
+                        <Shield size={14} className="text-[#1F3864]" />
+                        <span>Statutory Scrutiny is under review by District Administration. Read-only for {user?.roleTitle || role}.</span>
+                      </div>
+                    )}
                   </div>
                 ) : project.currentStage === 3 ? (
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
@@ -559,16 +582,23 @@ export default function ProjectDetailPage({ params }: PageProps) {
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleApproveSia}
-                      disabled={!siaFileUploaded || siaAffected <= 0}
-                      className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
-                        siaFileUploaded && siaAffected > 0 ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm" : "bg-gray-300 cursor-not-allowed text-gray-500"
-                      }`}
-                    >
-                      <ThumbsUp size={13} /> Submit SIA & Move to Stage 4
-                    </button>
+                    {canApproveSia ? (
+                      <button
+                        type="button"
+                        onClick={handleApproveSia}
+                        disabled={!siaFileUploaded || siaAffected <= 0}
+                        className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
+                          siaFileUploaded && siaAffected > 0 ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm cursor-pointer" : "bg-gray-300 cursor-not-allowed text-gray-500"
+                        }`}
+                      >
+                        <ThumbsUp size={13} /> Submit SIA & Move to Stage 4
+                      </button>
+                    ) : (
+                      <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 flex items-center gap-2">
+                        <Shield size={14} className="text-[#1F3864]" />
+                        <span>SIA Approval is reserved for State Government & SIA Authority. Read-only for {user?.roleTitle || role}.</span>
+                      </div>
+                    )}
                   </div>
                 ) : project.currentStage === 4 ? (
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
@@ -596,13 +626,20 @@ export default function ProjectDetailPage({ params }: PageProps) {
                       />
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleApproveS11}
-                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-[#138808] hover:bg-[#0E5F05] transition-all shadow-sm"
-                    >
-                      <ThumbsUp size={13} /> Publish Notification
-                    </button>
+                    {canPublishS11 ? (
+                      <button
+                        type="button"
+                        onClick={handleApproveS11}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-[#138808] hover:bg-[#0E5F05] transition-all shadow-sm cursor-pointer"
+                      >
+                        <ThumbsUp size={13} /> Publish Notification in Gazette
+                      </button>
+                    ) : (
+                      <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 flex items-center gap-2">
+                        <Shield size={14} className="text-[#1F3864]" />
+                        <span>Section 11 Gazette Publication requires State Government e-Sign authorization. Read-only for {user?.roleTitle || role}.</span>
+                      </div>
+                    )}
                   </div>
                 ) : project.currentStage === 5 ? (
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
@@ -652,13 +689,20 @@ export default function ProjectDetailPage({ params }: PageProps) {
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleCompleteObjections}
-                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-[#1F3864] hover:bg-[#2A4A8A] transition-all shadow-sm"
-                    >
-                      <CheckCircle size={13} /> Complete Stage 5 Objections
-                    </button>
+                    {canDisposeObjections ? (
+                      <button
+                        type="button"
+                        onClick={handleCompleteObjections}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-[#1F3864] hover:bg-[#2A4A8A] transition-all shadow-sm cursor-pointer"
+                      >
+                        <CheckCircle size={13} /> Complete Stage 5 Objections (Collector Order)
+                      </button>
+                    ) : (
+                      <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 flex items-center gap-2">
+                        <Shield size={14} className="text-[#1F3864]" />
+                        <span>Objection hearings & disposal orders are conducted exclusively by District Collector.</span>
+                      </div>
+                    )}
                   </div>
                 ) : project.currentStage === 6 ? (
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm">
@@ -685,28 +729,39 @@ export default function ProjectDetailPage({ params }: PageProps) {
                             </span>
                             <p className="text-[9px] text-gray-400 font-mono select-all mt-1">{s19SignatureHash}</p>
                           </div>
-                        ) : (
+                        ) : canSignS19 ? (
                           <button
                             type="button"
                             onClick={handleSignS19}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
                           >
                             <Shield size={13} /> e-Sign Declaration
                           </button>
+                        ) : (
+                          <div className="p-2 bg-gray-50 text-gray-500 text-xs rounded-lg">
+                            State Government Digital Signature Required
+                          </div>
                         )}
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleApproveS19}
-                      disabled={!s19Signed}
-                      className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
-                        s19Signed ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm" : "bg-gray-300 cursor-not-allowed text-gray-500"
-                      }`}
-                    >
-                      <ThumbsUp size={13} /> Publish Declaration & Move to Survey
-                    </button>
+                    {canSignS19 ? (
+                      <button
+                        type="button"
+                        onClick={handleApproveS19}
+                        disabled={!s19Signed}
+                        className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all ${
+                          s19Signed ? "bg-[#138808] hover:bg-[#0E5F05] shadow-sm cursor-pointer" : "bg-gray-300 cursor-not-allowed text-gray-500"
+                        }`}
+                      >
+                        <ThumbsUp size={13} /> Publish Declaration & Move to Survey
+                      </button>
+                    ) : (
+                      <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 flex items-center gap-2">
+                        <Shield size={14} className="text-[#1F3864]" />
+                        <span>Section 19 Final Declaration requires State Government Gazette authority.</span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">

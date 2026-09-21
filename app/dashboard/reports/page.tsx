@@ -92,10 +92,24 @@ export default function DashboardReportsPage() {
                   <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#1F3864] flex items-center justify-center">
                     <BarChart3 size={18} />
                   </div>
-                  <h1 className="text-xl font-bold text-[#1F3864]">MIS Analytics & Regulatory Reports</h1>
+                  <h1 className="text-xl font-bold text-[#1F3864]">
+                    {role === "ministry"
+                      ? "National MIS Analytics & Regulatory Reports (DoLR)"
+                      : role === "state"
+                      ? "State Level Land Acquisition MIS Dossier (UP)"
+                      : role === "district"
+                      ? "District Collectorate Statutory MIS & PFMS Reports"
+                      : "PIA Infrastructure RoW & Acquisition Status Report"}
+                  </h1>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Ministry-level cross-state benchmarking, financial audits & possession timeline forecasting
+                  {role === "ministry"
+                    ? "Pan-India cross-state benchmarking, financial audits & possession timeline forecasting"
+                    : role === "state"
+                    ? "Statewide acquisition monitoring across all 75 districts of Uttar Pradesh"
+                    : role === "district"
+                    ? "Varanasi district CALA unit award status, gazette notices, and solatium disbursement logs"
+                    : "National Highways Authority of India (NHAI) corridor land demand vs physical handover tracker"}
                 </p>
               </div>
 
@@ -129,11 +143,27 @@ export default function DashboardReportsPage() {
                     onChange={(e) => setReportType(e.target.value)}
                     className="w-full p-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1F3864]"
                   >
-                    <option value="executive-summary">Executive National Summary (DoLR)</option>
-                    <option value="state-comparative">State-Wise Acquisition & Possession</option>
-                    <option value="compensation-pfms">PFMS Compensation Disbursement Audit</option>
-                    <option value="bottleneck-analysis">Stage 1-12 Bottleneck & Delay Forecast</option>
-                    <option value="rnr-welfare">R&R Beneficiary & Welfare Census</option>
+                    {role === "pia" ? (
+                      <>
+                        <option value="row-handover">RoW Handover & Linear Clearance Dossier</option>
+                        <option value="encumbrance-free">Encumbrance-Free Land Audit Report</option>
+                        <option value="deposit-utilization">Escrow & CALA Fund Deposit Status</option>
+                      </>
+                    ) : role === "district" ? (
+                      <>
+                        <option value="district-cala">District CALA Award & Gazette Ledger</option>
+                        <option value="compensation-pfms">PFMS Compensation Disbursement Audit</option>
+                        <option value="objections-disposal">Section 15 Hearing & Objection Disposal</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="executive-summary">Executive National Summary (DoLR)</option>
+                        <option value="state-comparative">State-Wise Acquisition & Possession</option>
+                        <option value="compensation-pfms">PFMS Compensation Disbursement Audit</option>
+                        <option value="bottleneck-analysis">Stage 1-12 Bottleneck & Delay Forecast</option>
+                        <option value="rnr-welfare">R&R Beneficiary & Welfare Census</option>
+                      </>
+                    )}
                   </select>
                 </div>
 
@@ -144,12 +174,20 @@ export default function DashboardReportsPage() {
                     onChange={(e) => setSelectedState(e.target.value)}
                     className="w-full p-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1F3864]"
                   >
-                    <option value="all">All States (Pan-India)</option>
-                    <option value="UP">Uttar Pradesh</option>
-                    <option value="RJ">Rajasthan</option>
-                    <option value="MH">Maharashtra</option>
-                    <option value="KA">Karnataka</option>
-                    <option value="MP">Madhya Pradesh</option>
+                    {role === "district" ? (
+                      <option value="Varanasi">Varanasi District, UP</option>
+                    ) : role === "state" ? (
+                      <option value="UP">Uttar Pradesh (All 75 Districts)</option>
+                    ) : (
+                      <>
+                        <option value="all">All States (Pan-India)</option>
+                        <option value="UP">Uttar Pradesh</option>
+                        <option value="RJ">Rajasthan</option>
+                        <option value="MH">Maharashtra</option>
+                        <option value="KA">Karnataka</option>
+                        <option value="MP">Madhya Pradesh</option>
+                      </>
+                    )}
                   </select>
                 </div>
 

@@ -41,21 +41,21 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Role-based authorization
-  if (isAuthenticated && userRole) {
+    // Role-based authorization
+    const effectiveRole = userRole === "field" ? "lao" : userRole;
     const ROLE_PROTECTIONS: Record<string, string[]> = {
-      "/valuation-review": ["ministry", "state", "district"],
-      "/projects/new": ["pia", "ministry"],
-      "/dashboard/reports": ["ministry", "state"],
-      "/dashboard/audit": ["ministry"],
+      "/valuation-review": ["ministry", "state", "district", "lao"],
+      "/projects/new": ["pia"],
+      "/dashboard/reports": ["ministry", "state", "district", "pia"],
+      "/dashboard/audit": ["ministry", "state", "district", "lao"],
+      "/dashboard/field-survey": ["lao", "district", "state"],
     };
 
     for (const [route, allowedRoles] of Object.entries(ROLE_PROTECTIONS)) {
-      if (pathname.startsWith(route) && !allowedRoles.includes(userRole)) {
+      if (pathname.startsWith(route) && (!effectiveRole || !allowedRoles.includes(effectiveRole))) {
         return NextResponse.redirect(new URL("/dashboard", request.url));
       }
     }
-  }
 
   // Authenticated user trying to access login page -> redirect to dashboard
   if (pathname === "/login" && isAuthenticated) {

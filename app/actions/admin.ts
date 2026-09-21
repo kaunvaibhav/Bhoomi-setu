@@ -3,10 +3,17 @@
 import { cookies } from "next/headers";
 import { AuthSession } from "@/lib/auth";
 
+export type AdminActionResult = {
+  success: boolean;
+  message?: string;
+  error?: string;
+  session?: AuthSession;
+};
+
 /**
  * Helper to securely identify the session and enforce administrative RBAC
  */
-async function authorizeAdminAction(): Promise<{ success: boolean; error?: string; session?: AuthSession }> {
+async function authorizeAdminAction(): Promise<AdminActionResult> {
   try {
     const cookieStore = await cookies();
     const authCookie = cookieStore.get("bhoomisetu_auth");
@@ -39,7 +46,7 @@ async function authorizeAdminAction(): Promise<{ success: boolean; error?: strin
   }
 }
 
-export async function syncPfmsServerAction() {
+export async function syncPfmsServerAction(): Promise<AdminActionResult> {
   const auth = await authorizeAdminAction();
   if (!auth.success) return auth;
 
@@ -47,7 +54,7 @@ export async function syncPfmsServerAction() {
   return { success: true, message: "PFMS DBT Gateway sync completed (Response: HTTP 200 OK)" };
 }
 
-export async function exportLedgerServerAction() {
+export async function exportLedgerServerAction(): Promise<AdminActionResult> {
   const auth = await authorizeAdminAction();
   if (!auth.success) return auth;
 
@@ -55,7 +62,7 @@ export async function exportLedgerServerAction() {
   return { success: true, message: "Compensation ledger CSV exported successfully." };
 }
 
-export async function batchPfmsReleaseServerAction() {
+export async function batchPfmsReleaseServerAction(): Promise<AdminActionResult> {
   const auth = await authorizeAdminAction();
   if (!auth.success) return auth;
 

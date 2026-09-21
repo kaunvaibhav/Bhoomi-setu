@@ -2,7 +2,7 @@
 // Smart India Hackathon 2026 Prototype
 // Government of India · Ministry of Rural Development · Department of Land Resources (DoLR)
 
-export type UserRole = "ministry" | "district" | "pia" | "citizen" | "state" | "field";
+export type UserRole = "ministry" | "state" | "district" | "lao" | "pia" | "citizen" | "field";
 
 export interface User {
   id: string;
@@ -23,7 +23,7 @@ export interface AuthSession {
 }
 
 // ── PROTOTYPE USER CREDENTIALS ────────────────────────────────────────────────
-// Pre-configured official prototype accounts
+// Pre-configured official prototype accounts for all 6 stakeholder roles
 export const PROTOTYPE_CREDENTIALS: Record<
   string,
   { password: string; user: User }
@@ -41,6 +41,19 @@ export const PROTOTYPE_CREDENTIALS: Record<
       avatarInitials: "RS",
     },
   },
+  "state@bhoomisetu.gov.in": {
+    password: "State@123",
+    user: {
+      id: "usr_state_005",
+      email: "state@bhoomisetu.gov.in",
+      name: "Ananya Sen, IAS",
+      role: "state",
+      roleTitle: "State Government Officer",
+      department: "Revenue & Land Reforms Department · Govt. of Uttar Pradesh",
+      jurisdiction: "Uttar Pradesh State (All 75 Districts)",
+      avatarInitials: "AS",
+    },
+  },
   "collector@bhoomisetu.gov.in": {
     password: "Collector@123",
     user: {
@@ -52,6 +65,32 @@ export const PROTOTYPE_CREDENTIALS: Record<
       department: "District Administration & Land Acquisition Unit",
       jurisdiction: "Varanasi District, Uttar Pradesh",
       avatarInitials: "PN",
+    },
+  },
+  "lao@bhoomisetu.gov.in": {
+    password: "LAO@123",
+    user: {
+      id: "usr_lao_006",
+      email: "lao@bhoomisetu.gov.in",
+      name: "Sanjay Verma",
+      role: "lao",
+      roleTitle: "Land Acquisition Officer",
+      department: "Competent Authority Land Acquisition (CALA) Unit",
+      jurisdiction: "Varanasi Sub-Division, Uttar Pradesh",
+      avatarInitials: "SV",
+    },
+  },
+  "field@bhoomisetu.gov.in": {
+    password: "Field@123",
+    user: {
+      id: "usr_lao_006",
+      email: "field@bhoomisetu.gov.in",
+      name: "Sanjay Verma",
+      role: "lao",
+      roleTitle: "Land Acquisition Officer",
+      department: "Competent Authority Land Acquisition (CALA) Unit",
+      jurisdiction: "Varanasi Sub-Division, Uttar Pradesh",
+      avatarInitials: "SV",
     },
   },
   "pia@bhoomisetu.gov.in": {
@@ -126,7 +165,12 @@ export function validateCredentials(
   }
 
   // Rule 7: Verify selected role matches the account role
-  if (selectedRole && selectedRole !== account.user.role) {
+  const isEquivalent =
+    selectedRole === account.user.role ||
+    ((selectedRole === "lao" || selectedRole === "field") &&
+      (account.user.role === "lao" || account.user.role === "field"));
+
+  if (selectedRole && !isEquivalent) {
     return {
       success: false,
       error: `Selected role does not match this account. Credentials belong to ${account.user.roleTitle}.`,

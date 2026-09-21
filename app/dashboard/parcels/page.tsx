@@ -20,20 +20,41 @@ export default function DashboardParcelsPage() {
   const role: UserRole = (user?.role as UserRole) || "ministry";
   const roleConfig = DEMO_ROLES[role] || DEMO_ROLES.ministry;
 
-  // Flatten all parcels from projects
-  const allParcels: (Parcel & { projectName: string; projectId: string; state: string })[] = SAMPLE_PROJECTS.flatMap((proj) =>
+  const effectiveRole = role === "field" ? "lao" : role;
+
+  // Flatten and scope parcels based on authenticated role
+  const allParcels: (Parcel & { projectName: string; projectId: string; state: string; requiringBody: string })[] = SAMPLE_PROJECTS.flatMap((proj) =>
     proj.parcels.map((p) => ({
       ...p,
       projectName: proj.name,
       projectId: proj.id,
       state: proj.state,
+      requiringBody: proj.requiringBody,
     }))
-  );
+  ).filter((p) => {
+    if (effectiveRole === "citizen") {
+      // Citizen constraint: strictly their own registered parcel only
+      return p.id === "UP-AGR-004821" || (user?.name && p.ownerName.toLowerCase().includes("patel"));
+    }
+    if (effectiveRole === "district") {
+      return p.district === "Varanasi";
+    }
+    if (effectiveRole === "state") {
+      return p.state === "Uttar Pradesh";
+    }
+    if (effectiveRole === "pia") {
+      return p.requiringBody === "National Highways Authority of India";
+    }
+    if (effectiveRole === "lao") {
+      return p.district === "Varanasi";
+    }
+    return true; // Ministry sees all nationwide
+  });
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterFlagged, setFilterFlagged] = useState<"all" | "flagged" | "normal">("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [selectedParcel, setSelectedParcel] = useState<(Parcel & { projectName: string; projectId: string; state: string }) | null>(null);
+  const [selectedParcel, setSelectedParcel] = useState<(Parcel & { projectName: string; projectId: string; state: string; requiringBody: string }) | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toasts, addToast, dismissToast } = useToast();
 
