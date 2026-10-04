@@ -1,15 +1,10 @@
-Absolutely. For GitHub, I’d make the README look like a **real engineering module**, not just a generic “AI project” README. Since this is currently a standalone intelligence layer using synthetic development data, the README should be transparent about that while still showing the architecture and intended integration.
-
-You can put this directly in `intelligence/README.md`:
-
-```markdown
 # 🧠 BhoomiSetu Intelligence Engine
 
 > AI/ML-powered decision-support layer for the BhoomiSetu Land Acquisition & Management System.
 
-The **BhoomiSetu Intelligence Engine** is a standalone machine-learning module designed to support administrators in identifying unusual compensation patterns, assessing acquisition-case risk, and prioritizing cases that may require manual review.
+The BhoomiSetu Intelligence Engine is a standalone machine-learning module designed to support administrators in identifying unusual compensation patterns, assessing acquisition-case risk, and prioritizing cases that may require manual review.
 
-The module currently operates independently using **synthetic development data** and is designed for future integration with the BhoomiSetu platform.
+The module currently operates independently using synthetic development data and is designed for future integration with the BhoomiSetu platform.
 
 ---
 
@@ -25,52 +20,52 @@ The Intelligence Engine adds an analytical layer over this workflow to help iden
 - Cases requiring manual review
 - Data-driven insights for administrative decision-making
 
-The system is designed as a **decision-support tool**, not an automated decision-maker.
+The system is designed as a decision-support tool, not an automated decision-maker.
 
-> **AI identifies patterns. Authorized officers make decisions.**
+> AI identifies patterns. Authorized officers make decisions.
 
 ---
 
 # 🚀 AI/ML Pipeline
 
 ```text
-             LAND ACQUISITION DATA
-                       │
-                       ▼
-              ┌─────────────────┐
-              │ Data Validation │
-              └────────┬────────┘
-                       │
-                       ▼
-             ┌───────────────────┐
-             │ Feature Engineering│
-             └─────────┬─────────┘
-                       │
-                       ▼
-              ┌─────────────────┐
-              │  Preprocessing  │
-              └────────┬────────┘
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-      ┌───────────────┐  ┌──────────────┐
-      │   Anomaly     │  │  Risk Scoring│
-      │   Detection   │  │    Model     │
-      └───────┬───────┘  └──────┬───────┘
-              │                 │
-              └────────┬────────┘
-                       ▼
-              ┌─────────────────┐
-              │ Explainability  │
-              └────────┬────────┘
-                       │
-                       ▼
-              ┌─────────────────┐
-              │ Decision Support│
-              └────────┬────────┘
-                       │
-                       ▼
-                HUMAN REVIEW
+LAND ACQUISITION DATA
+        │
+        ▼
+┌─────────────────┐
+│ Data Validation │
+└────────┬────────┘
+         │
+         ▼
+┌───────────────────┐
+│ Feature Engineering│
+└─────────┬─────────┘
+          │
+          ▼
+┌─────────────────┐
+│  Preprocessing   │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌─────────┐ ┌──────────────┐
+│ Anomaly │ │ Risk Scoring │
+│Detection│ │    Model     │
+└────┬────┘ └──────┬───────┘
+     │             │
+     └──────┬──────┘
+            ▼
+    ┌───────────────┐
+    │ Explainability│
+    └───────┬───────┘
+            │
+            ▼
+    ┌─────────────────┐
+    │ Decision Support│
+    └───────┬─────────┘
+            │
+            ▼
+       HUMAN REVIEW
 ```
 
 ---
@@ -91,14 +86,14 @@ The anomaly detection pipeline considers factors such as:
 - Market growth
 - Geographic proximity to comparable transactions
 
-The system generates an **anomaly score from 0–100**.
+The system generates an anomaly score from 0–100.
 
 ```text
 0   ─────────────────────────────── 100
 Normal                              Unusual
 ```
 
-A high score does **not** indicate fraud or wrongdoing.
+A high score does not indicate fraud or wrongdoing.
 
 It indicates that the case differs significantly from patterns learned from the available development data and may require further review.
 
@@ -151,7 +146,7 @@ The risk score helps administrators prioritize cases that may require attention.
 
 The system does not only generate a score.
 
-It also attempts to explain **why a case received that score**.
+It also attempts to explain why a case received that score.
 
 Example:
 
@@ -178,20 +173,18 @@ This makes the output more useful for administrative decision-making.
 
 The pipeline derives additional features from the raw acquisition data.
 
-Examples include:
-
 | Feature | Purpose |
 |---|---|
-| `compensation_to_circle_rate_ratio` | Compares compensation with official circle-rate baseline |
-| `compensation_to_market_ratio` | Compares declared compensation with nearby market transactions |
-| `compensation_deviation_percent` | Measures deviation from comparable values |
-| `historical_value_deviation` | Compares current valuation with historical patterns |
-| `pending_delay_score` | Represents processing-delay risk |
-| `document_completeness_score` | Measures availability of required documentation |
-| `objection_density` | Represents objection activity relative to the case |
-| `r_and_r_completion_score` | Tracks rehabilitation and resettlement progress |
-| `infrastructure_proximity_factor` | Represents proximity-related valuation context |
-| `project_progress_indicator` | Represents overall acquisition progress |
+| compensation_to_circle_rate_ratio | Compares compensation with official circle-rate baseline |
+| compensation_to_market_ratio | Compares declared compensation with nearby market transactions |
+| compensation_deviation_percent | Measures deviation from comparable values |
+| historical_value_deviation | Compares current valuation with historical patterns |
+| pending_delay_score | Represents processing-delay risk |
+| document_completeness_score | Measures availability of required documentation |
+| objection_density | Represents objection activity relative to the case |
+| r_and_r_completion_score | Tracks rehabilitation and resettlement progress |
+| infrastructure_proximity_factor | Represents proximity-related valuation context |
+| project_progress_indicator | Represents overall acquisition progress |
 
 Feature engineering is kept deterministic so that training and inference remain consistent.
 
@@ -323,7 +316,7 @@ Clone the repository and enter the intelligence module:
 cd intelligence
 ```
 
-Create a virtual environment:
+Create a virtual environment.
 
 ### Windows
 
@@ -445,7 +438,7 @@ Depending on the model and available development labels, evaluation may include:
 - Confusion Matrix
 - Anomaly-detection metrics
 
-Any metrics generated from synthetic data should be treated strictly as **development metrics**, not real-world performance estimates.
+Any metrics generated from synthetic data should be treated strictly as development metrics, not real-world performance estimates.
 
 ---
 
@@ -454,25 +447,25 @@ Any metrics generated from synthetic data should be treated strictly as **develo
 BhoomiSetu Intelligence is intentionally designed around human oversight.
 
 ```text
-             AI / ML
-                │
-                ▼
-       Pattern Identification
-                │
-                ▼
-        Risk / Anomaly Score
-                │
-                ▼
-          Explanation
-                │
-                ▼
-       Authorized Officer
-                │
-                ▼
-        Final Decision
+AI / ML
+   │
+   ▼
+Pattern Identification
+   │
+   ▼
+Risk / Anomaly Score
+   │
+   ▼
+Explanation
+   │
+   ▼
+Authorized Officer
+   │
+   ▼
+Final Decision
 ```
 
-The system does **not** make legal or administrative decisions.
+The system does not make legal or administrative decisions.
 
 It does not classify cases as fraudulent or corrupt.
 
@@ -523,7 +516,7 @@ A future API layer could expose inference through an endpoint such as:
 POST /predict
 ```
 
-This integration is **not part of the current implementation**.
+This integration is not part of the current implementation.
 
 ---
 
@@ -582,3 +575,4 @@ Data-Driven Land Administration
 The Intelligence Engine is the analytical layer that helps transform acquisition data into **actionable, explainable decision support**.
 
 ---
+
