@@ -1,5 +1,4 @@
-# 🧠 BhoomiSetu Intelligence Engine
-
+# 🧠 BhoomiSetu
 > AI/ML-powered decision-support layer for the BhoomiSetu Land Acquisition & Management System.
 
 The BhoomiSetu Intelligence Engine is a standalone machine-learning module designed to support administrators in identifying unusual compensation patterns, assessing acquisition-case risk, and prioritizing cases that may require manual review.
