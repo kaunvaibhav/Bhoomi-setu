@@ -839,6 +839,73 @@ function DemoSection() {
   );
 }
 
+// ── SECTION 9.5: DOCUMENTATION ───────────────────────────────────────────────
+function DocumentationSection() {
+  return (
+    <section
+      id="documentation"
+      className="py-16 lg:py-20 bg-slate-50 border-t border-gray-200/70"
+      aria-labelledby="documentation-heading"
+    >
+      <div className="max-w-8xl mx-auto px-4">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <SectionLabel>Project Documentation</SectionLabel>
+          <h2
+            id="documentation-heading"
+            className="text-3xl font-bold text-[#1F3864] mb-3"
+          >
+            BhoomiSetu Documentation
+          </h2>
+          <p className="text-sm font-medium text-gray-500 max-w-xl mx-auto">
+            Complete Project Documentation — Smart India Hackathon 2026
+          </p>
+        </motion.div>
+
+        {/* PDF Viewer Card */}
+        <motion.div
+          className="w-[96%] sm:w-[94%] max-w-7xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden flex flex-col h-[600px] md:h-[650px] lg:h-[750px]"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          {/* Card Information Bar */}
+          <div className="bg-[#1F3864] px-5 py-3.5 flex items-center justify-between text-white flex-shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#FF9933]" aria-hidden="true" />
+              <p className="text-xs font-semibold tracking-wide">
+                BhoomiSetu Technical Documentation (16 Pages)
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-blue-200">
+              <FileText size={14} className="text-[#FF9933]" />
+              <span className="hidden sm:inline">Theme: Smart Automation · Team Hard Forkers</span>
+              <span className="sm:hidden">PS: 26016</span>
+            </div>
+          </div>
+
+          {/* Embedded Internal Scrollable PDF Viewer */}
+          <div className="w-full flex-1 relative bg-slate-100 overflow-hidden">
+            <iframe
+              src="/BhoomiSetu_Technical_Documentation_SIH2026.pdf#toolbar=0&navpanes=0&scrollbar=1&view=FitH"
+              title="BhoomiSetu Project Documentation"
+              className="w-full h-full border-0"
+              style={{ minHeight: "100%" }}
+            />
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 // ── SECTION 10: TRUST & IMPACT ────────────────────────────────────────────────
 function TrustSection() {
   const quotes = [
@@ -930,6 +997,7 @@ export default function LandingPage() {
         <StakeholdersSection />
         <MapSection />
         <DemoSection />
+        <DocumentationSection />
         <TrustSection />
 
         {/* CTA Banner */}
