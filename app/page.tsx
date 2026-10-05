@@ -4,7 +4,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   Clock, AlertTriangle, IndianRupee, Layers, Map, Brain, Users,
-  CheckCircle, ArrowRight, ChevronRight, Play, Shield, Database,
+  CheckCircle, ArrowRight, ChevronRight, Shield, Database,
   Network, Cpu, FileText, Bell, BarChart3, User, Building2,
   Landmark, HardHat, UserCheck, Wheat,
 } from "lucide-react";
@@ -13,6 +13,7 @@ import TopUtilityBar from "@/components/TopUtilityBar";
 import MainNavbar from "@/components/MainNavbar";
 import ProcessStepper from "@/components/ProcessStepper";
 import Footer from "@/components/Footer";
+import YouTubeWalkthroughPlayer from "@/components/YouTubeWalkthroughPlayer";
 import { SIH_META, SAMPLE_STATES, SAMPLE_PROJECTS } from "@/lib/mockData";
 
 const NationalFootprintMap = dynamic(
@@ -785,22 +786,8 @@ function DemoSection() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Video placeholder */}
-          <div className="aspect-video bg-[#1F3864] rounded-2xl relative overflow-hidden flex items-center justify-center group cursor-pointer">
-            {/* Grid background */}
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "repeating-linear-gradient(0deg,white 0,white 1px,transparent 0,transparent 40px),repeating-linear-gradient(90deg,white 0,white 1px,transparent 0,transparent 40px)" }} aria-hidden="true" />
-            <div className="text-center z-10">
-              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-white/30 transition-colors">
-                <Play size={28} className="text-white ml-1" />
-              </div>
-              <p className="text-white font-semibold mb-2">Prototype Walkthrough</p>
-              <div className="flex gap-3 justify-center">
-                {["Track", "Detect", "Act"].map((label) => (
-                  <span key={label} className="text-xs px-3 py-1 rounded-full bg-white/20 text-white font-medium">{label}</span>
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* Embedded YouTube Walkthrough Player */}
+          <YouTubeWalkthroughPlayer videoId="CEYkEoCGXN4" />
 
           {/* SIH info card */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-card p-6">
